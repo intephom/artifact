@@ -9,7 +9,7 @@
     std::ostringstream stream; \
     stream << message; \
     throw std::runtime_error(stream.str()); \
-  } while(false);
+  } while (false);
 
 namespace afct {
 

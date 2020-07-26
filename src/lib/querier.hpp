@@ -36,7 +36,7 @@ bool Querier::get(std::string const& path, T& result) const
 {
   auto elements = Split("/", path);
   afct::Expr expr;
-  if(!find(std::move(elements), expr))
+  if (!find(std::move(elements), expr))
     return false;
   return get<T>(expr, result);
 }
@@ -45,7 +45,7 @@ template<class T>
 T Querier::get(std::string const& path) const
 {
   T result;
-  if(!get<T>(path, result))
+  if (!get<T>(path, result))
     AFCT_ERROR("Failed to get from " << path);
   return result;
 }
@@ -53,15 +53,15 @@ T Querier::get(std::string const& path) const
 template<class T>
 bool Querier::get_int(Expr const& expr, T& result) const
 {
-  if(!expr.is_int())
+  if (!expr.is_int())
     return false;
 
   auto i = expr.get_int();
-  if(!std::numeric_limits<T>::is_signed && i < 0)
+  if (!std::numeric_limits<T>::is_signed && i < 0)
     return false;
-  else if(i > std::numeric_limits<T>::max())
+  else if (i > std::numeric_limits<T>::max())
     return false;
-  else if(i < std::numeric_limits<T>::min())
+  else if (i < std::numeric_limits<T>::min())
     return false;
 
   result = i;
