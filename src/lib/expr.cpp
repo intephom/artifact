@@ -280,34 +280,71 @@ std::ostream& operator<<(std::ostream& stream, Expr const& expr)
     return stream << "<function " << expr.get_function()->name() << ">";
   else if (type == Type::List)
   {
-    auto const& list = *expr.get_list();
-    if (list.empty())
-      return stream << "()";
+    if (IsQuote(expr))
+    {
+      return stream << "'" << Unquote(expr);
+    }
+    else
+    {
+      auto const& list = *expr.get_list();
 
-    std::ostringstream substream;
-    substream << "(";
-    for (auto subexpr : list)
-      substream << subexpr << " ";
-    substream.seekp(-1, std::ios_base::end);
-    substream << ")";
-    return stream << substream.str();
+      if (list.empty())
+        return stream << "()";
+
+      std::ostringstream substream;
+      substream << "(";
+      for (auto const& subexpr : list)
+        substream << subexpr << " ";
+      substream.seekp(-1, std::ios_base::end);
+      substream << ")";
+      return stream << substream.str();
+    }
   }
   else if (type == Type::Table)
   {
     auto const& table = *expr.get_table();
     if (table.empty())
-      return stream << "(table)";
+      return stream << "#()";
 
-    stream << "(table ";
+    stream << "#(";
     std::ostringstream substream;
     for (auto const& pair : table)
-      substream << "'(" << pair.first << " " << pair.second << ") ";
+      substream << pair.first << " " << pair.second << " ";
     substream.seekp(-1, std::ios_base::end);
     substream << ")";
     return stream << substream.str();
   }
   else
     return stream << "?";
+}
+
+bool IsQuote(Expr const& expr)
+{
+  if (!expr.is_list())
+    return false;
+
+  auto const& list = *expr.get_list();
+  if (list.empty())
+    return false;
+
+  auto const& first = list[0];
+  if (!first.is_name())
+    return false;
+
+  auto const& name = first.get_name();
+  return name == "quote" || name == "'";
+}
+
+Expr Unquote(Expr const& expr)
+{
+  if (!IsQuote(expr))
+    return expr;
+
+  auto const& list = *expr.get_list();
+  if (list.size() == 1)
+    return expr;
+
+  return list[1];
 }
 
 }

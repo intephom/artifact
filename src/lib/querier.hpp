@@ -59,10 +59,13 @@ bool Querier::get_int(Expr const& expr, T& result) const
   auto i = expr.get_int();
   if (!std::numeric_limits<T>::is_signed && i < 0)
     return false;
-  else if (i > std::numeric_limits<T>::max())
-    return false;
-  else if (i < std::numeric_limits<T>::min())
-    return false;
+  if (std::numeric_limits<T>::max() != std::numeric_limits<uint64_t>::max())
+  {
+    if (i > std::numeric_limits<T>::max())
+      return false;
+    else if (i < std::numeric_limits<T>::min())
+      return false;
+  }
 
   result = i;
   return true;

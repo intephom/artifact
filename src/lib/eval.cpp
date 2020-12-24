@@ -29,7 +29,9 @@ Env Prelude()
     {"or", Or},
     {"not", Not},
     {"list", ToList},
+    {"table", ToTable},
     {"length", Length},
+    {"append", Append},
     {"cons", Cons},
     {"car", Car},
     {"cdr", Cdr},
@@ -39,6 +41,9 @@ Env Prelude()
     {"double", Double},
     {"int", Int},
     {"string", String},
+    {"apply", Apply},
+    {"map", Map},
+    {"filter", Filter},
     {"print", Print},
     {"getenv", GetEnv},
     {"rand", Rand} };
@@ -131,26 +136,6 @@ Expr Eval(Expr const& expr, Env& env)
     }
     return Expr::FromNull();
   }
-  else if (name == "table")
-  {
-    if (list.empty())
-      AFCT_EVAL_ERROR("Expected 1+ args to table");
-
-    auto table = std::make_shared<Table>();
-    for (size_t i = 1; i < list.size(); i++)
-    {
-      auto const& arg = Eval(list[i], env);
-
-      if (!arg.is_list() || arg.get_list()->size() != 2)
-      {
-        AFCT_EVAL_ERROR("Expected list of pairs to table");
-      }
-
-      auto const& pair = *arg.get_list();
-      table->emplace(Eval(pair[0], env), Eval(pair[1], env));
-    }
-    return Expr::FromTable(std::move(table));
-  }
   else
   {
     auto func = Eval(list.front(), env);
@@ -165,15 +150,14 @@ Expr Eval(Expr const& expr, Env& env)
 
 Expr Eval(std::string input, Env& env)
 {
-    auto tokens = Lex(input);
-    auto expression = Parse(tokens);
-    return Eval(expression, env);
+  auto expression = Parse(std::move(input));
+  return Eval(expression, env);
 }
 
 Expr Eval(std::string input)
 {
   auto env = Prelude();
-  return Eval(input, env);
+  return Eval(std::move(input), env);
 }
 
 Expr Eval(std::filesystem::path const& path, Env& env)

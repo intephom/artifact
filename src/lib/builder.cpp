@@ -36,7 +36,17 @@ bool Builder::name_value(std::string value)
 
 bool Builder::expr_value(Expr value)
 {
-  return push(std::move(value));
+  bool is_list = value.is_list();
+  bool is_table = value.is_table();
+
+  auto result = push(std::move(value));
+
+  if (is_list)
+    end_list();
+  if (is_table)
+    end_table();
+
+  return result;
 }
 
 void Builder::bool_key(bool key)

@@ -6,7 +6,6 @@
 namespace afct {
 
 std::list<std::string> Lex(std::string const& text);
-Expr Parse(std::list<std::string>& tokens);
-Expr Parse(std::string const& text);
+Expr Parse(std::string text);
 
 } // namespace afct

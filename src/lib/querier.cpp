@@ -18,6 +18,16 @@ bool Querier::get_list(
 
   if (expr.is_list())
   {
+    if (IsQuote(expr))
+    {
+      auto const& unquoted = Unquote(expr);
+      if (unquoted.is_list())
+      {
+        result = *unquoted.get_list();
+        return true;
+      }
+    }
+
     result = *expr.get_list();
     return true;
   }

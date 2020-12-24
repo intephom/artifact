@@ -91,4 +91,7 @@ bool operator==(Expr const& lhs, Expr const& rhs);
 bool operator!=(Expr const& lhs, Expr const& rhs);
 std::ostream& operator<<(std::ostream& stream, Expr const& expr);
 
+bool IsQuote(Expr const& expr);
+Expr Unquote(Expr const& expr);
+
 } // namespace afct

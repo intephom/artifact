@@ -16,16 +16,16 @@ std::list<std::string> Lex(std::string const& text)
     }
   };
 
-  bool in_string = false;
   bool in_comment = false;
+  bool in_string = false;
+  bool in_table_def = false;
   for (auto c : text)
   {
     if (in_comment)
     {
       if (c == '\n')
         in_comment = false;
-      else
-        continue;
+      continue;
     }
     else if (c == ';')
     {
@@ -41,6 +41,24 @@ std::list<std::string> Lex(std::string const& text)
     else if (in_string)
     {
       token += c;
+    }
+    else if (c == '#')
+    {
+      PushToken();
+      token += c;
+      in_table_def = true;
+    }
+    else if (in_table_def)
+    {
+      if (std::isspace(c))
+        continue;
+
+      if (c != '(')
+        AFCT_ERROR("Expected table definition #(");
+
+      token += c;
+      PushToken();
+      in_table_def = false;
     }
     else if (c == '\'')
     {
@@ -67,6 +85,12 @@ std::list<std::string> Lex(std::string const& text)
   }
   PushToken();
 
+  if (in_table_def)
+    AFCT_ERROR("Incomplete table definition");
+
+  if (in_string)
+    AFCT_ERROR("Incomplete string");
+
   return result;
 }
 
@@ -79,22 +103,26 @@ Expr Parse(std::list<std::string>& tokens)
 
   if (token == "'")
   {
-    if (tokens.empty() || tokens.front() != "(")
-      AFCT_ERROR("Expected ( after '");
-    tokens.pop_front();
+    if (tokens.empty())
+      AFCT_ERROR("Expected something after '");
 
     auto list = std::make_shared<List>();
     list->push_back(Expr::FromName("quote"));
-    auto sublist = std::make_shared<List>();
-    while (!tokens.empty() && tokens.front() != ")")
-    {
-      sublist->push_back(Parse(tokens));
-    }
-    list->push_back(Expr::FromList(sublist));
-
+    list->push_back(Parse(tokens));
+    return Expr::FromList(list);
+  }
+  if (token == "#(")
+  {
     if (tokens.empty())
-      AFCT_ERROR("Expected )");
-    tokens.pop_front();
+      AFCT_ERROR("Expected something after #(");
+
+    auto list = std::make_shared<List>();
+    list->push_back(Expr::FromName("table"));
+
+    tokens.push_front("(");
+    auto pairs = Parse(tokens);
+    for (auto pair : *pairs.get_list())
+      list->push_back(pair);
 
     return Expr::FromList(list);
   }
@@ -117,6 +145,8 @@ Expr Parse(std::list<std::string>& tokens)
   }
   else
   {
+    if (token == "null")
+      return Expr::FromNull();
     if (token == "true")
       return Expr::FromBool(true);
     else if (token == "false")
@@ -147,10 +177,13 @@ Expr Parse(std::list<std::string>& tokens)
   }
 }
 
-Expr Parse(std::string const& text)
+Expr Parse(std::string text)
 {
-  auto tokens = Lex(text);
-  return Parse(tokens);
+  auto tokens = Lex(std::move(text));
+  auto expr = Parse(tokens);
+  if (!tokens.empty())
+    AFCT_ERROR("Unexpected tokens at end of input");
+  return expr;
 }
 
 }
