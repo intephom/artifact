@@ -37,6 +37,7 @@ Env Prelude()
     {"cdr", Cdr},
     {"cat", Cat},
     {"get", Get},
+    {"set!", SetBang},
     {"bool", Bool},
     {"double", Double},
     {"int", Int},

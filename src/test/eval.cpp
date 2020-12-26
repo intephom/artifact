@@ -70,6 +70,7 @@ BOOST_AUTO_TEST_CASE(eval_stdlib_types)
 {
   BOOST_TEST(Eval(std::string(R"((cat  "hello " "world"))")) == Parse(R"("hello world")"));
   BOOST_TEST(Eval(std::string("(get #(1 2 3 4) 1)")) == Expr::FromInt(2));
+  BOOST_TEST(Eval(std::string("(begin (define a #(1 2 3 4)) (set! a 3 5) (get a 3))")) == Expr::FromInt(5));
   BOOST_TEST(Eval(std::string("(bool 2)")) == Expr::FromBool(true));
   BOOST_TEST(Eval(std::string("(double 2)")) == Expr::FromDouble(2));
   BOOST_TEST(Eval(std::string("(int 2.7)")) == Expr::FromInt(2));

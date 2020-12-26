@@ -173,7 +173,7 @@ Expr Length(List const& args)
 
 Expr Append(List const& args)
 {
-  if (args.size() == 1)
+  if (args.size() < 2)
     AFCT_ERROR("Expected 2+ args to append");
   if (!args[0].is_list())
     AFCT_ERROR("Expected list arg to append");
@@ -251,6 +251,18 @@ Expr Get(List const& args)
     return Expr::FromNull();
   else
     return it->second;
+}
+
+Expr SetBang(List const& args)
+{
+  if (args.size() != 3 || !args[0].is_table())
+    AFCT_ERROR("Expected 3 args to set!, table first");
+
+  auto& table = *args[0].get_table();
+  auto const& key = args[1];
+  auto const& value = args[2];
+  table[key] = value;
+  return Expr::FromNull();
 }
 
 Expr Bool(List const& args)
