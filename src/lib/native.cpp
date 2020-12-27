@@ -390,7 +390,10 @@ Expr Print(List const& args)
   if (args.size() != 1)
     AFCT_ARG_ERROR("Expected 1 arg to print");
 
-  std::cout << args[0] << std::endl;
+  if (args[0].is_string())
+    std::cout << args[0].get_string() << std::endl; // avoid ""
+  else
+    std::cout << args[0] << std::endl;
   return Expr::FromNull();
 }
 
