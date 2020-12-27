@@ -8,13 +8,21 @@
 #include <optional>
 #include <random>
 
+#define AFCT_ARG_ERROR(message) \
+  do \
+  { \
+    std::ostringstream stream; \
+    stream << message << ", got " << afct::Expr::FromList(std::make_shared<afct::List>(args)); \
+    throw std::runtime_error(stream.str()); \
+  } while (false);
+
 namespace afct {
 
 template<class Op>
 Expr Reduce(std::string const& name, List const& args, Op op, std::optional<double> initial)
 {
   if (args.size() < 2)
-    AFCT_ERROR("Expected 2+ args to " << name);
+    AFCT_ARG_ERROR("Expected 2+ args to " << name);
 
   double result = 0.0;
   if (initial.has_value())
@@ -27,7 +35,7 @@ Expr Reduce(std::string const& name, List const& args, Op op, std::optional<doub
     if (first.is_numeric())
       result = first.get_numeric();
     else
-      AFCT_ERROR("Expected numeric args to " << name);
+      AFCT_ARG_ERROR("Expected numeric args to " << name);
   }
 
   auto it = args.begin();
@@ -39,7 +47,7 @@ Expr Reduce(std::string const& name, List const& args, Op op, std::optional<doub
     if (arg.is_numeric())
       result = op(result, arg.get_numeric());
     else
-      AFCT_ERROR("Expected numeric args to " << name);
+      AFCT_ARG_ERROR("Expected numeric args to " << name);
     it++;
   }
 
@@ -52,7 +60,7 @@ Expr Reduce(std::string const& name, List const& args, Op op, std::optional<doub
 Expr Eq(List const& args)
 {
   if (args.size() != 2)
-    AFCT_ERROR("Expected 2 args to =");
+    AFCT_ARG_ERROR("Expected 2 args to =");
 
   return Expr::FromBool(args[0] == args[1]);
 }
@@ -80,7 +88,7 @@ Expr Div(List const& args)
 Expr LessThan(List const& args)
 {
   if (args.size() != 2)
-    AFCT_ERROR("Expected 2 args to <");
+    AFCT_ARG_ERROR("Expected 2 args to <");
 
   double lhs, rhs;
   if (args[0].is_numeric() && args[1].is_numeric())
@@ -89,7 +97,7 @@ Expr LessThan(List const& args)
     rhs = args[1].get_numeric();
   }
   else
-    AFCT_ERROR("Expected numeric args to <");
+    AFCT_ARG_ERROR("Expected numeric args to <");
 
   return Expr::FromBool(lhs < rhs);
 }
@@ -97,7 +105,7 @@ Expr LessThan(List const& args)
 Expr GreaterThan(List const& args)
 {
   if (args.size() != 2)
-    AFCT_ERROR("Expected 2 args to >");
+    AFCT_ARG_ERROR("Expected 2 args to >");
 
   double lhs, rhs;
   if (args[0].is_numeric() && args[1].is_numeric())
@@ -106,7 +114,7 @@ Expr GreaterThan(List const& args)
     rhs = args[1].get_numeric();
   }
   else
-    AFCT_ERROR("Expected numeric args to >");
+    AFCT_ARG_ERROR("Expected numeric args to >");
 
   return Expr::FromBool(lhs > rhs);
 }
@@ -114,7 +122,7 @@ Expr GreaterThan(List const& args)
 Expr And(List const& args)
 {
   if (args.size() < 2)
-    AFCT_ERROR("Expected 2+ args to and");
+    AFCT_ARG_ERROR("Expected 2+ args to and");
 
   for (auto const& arg : args)
   {
@@ -127,7 +135,7 @@ Expr And(List const& args)
 Expr Or(List const& args)
 {
   if (args.size() < 2)
-    AFCT_ERROR("Expected 2+ args to or");
+    AFCT_ARG_ERROR("Expected 2+ args to or");
 
   for (auto const& arg : args)
   {
@@ -140,9 +148,9 @@ Expr Or(List const& args)
 Expr Not(List const& args)
 {
   if (args.size() != 1)
-    AFCT_ERROR("Expected 1 arg to not");
+    AFCT_ARG_ERROR("Expected 1 arg to not");
   if (!args[0].is_bool())
-    AFCT_ERROR("Expected bool arg to not");
+    AFCT_ARG_ERROR("Expected bool arg to not");
 
   return Expr::FromBool(!args[0].get_bool());
 }
@@ -156,7 +164,7 @@ Expr ToTable(List const& args)
 {
   auto table = std::make_shared<Table>();
   if (args.size() % 2 != 0)
-    AFCT_ERROR("Expected even args to table");
+    AFCT_ARG_ERROR("Expected even args to table");
 
   for (size_t i = 0; i < args.size(); i += 2)
     table->emplace(args[i], args[i + 1]);
@@ -166,7 +174,7 @@ Expr ToTable(List const& args)
 Expr Length(List const& args)
 {
   if (args.size() != 1 || !args[0].is_list())
-    AFCT_ERROR("Expected 1 list arg to length");
+    AFCT_ARG_ERROR("Expected 1 list arg to length");
 
   return Expr::FromInt(args[0].get_list()->size());
 }
@@ -174,9 +182,9 @@ Expr Length(List const& args)
 Expr Append(List const& args)
 {
   if (args.size() < 2)
-    AFCT_ERROR("Expected 2+ args to append");
+    AFCT_ARG_ERROR("Expected 2+ args to append");
   if (!args[0].is_list())
-    AFCT_ERROR("Expected list arg to append");
+    AFCT_ARG_ERROR("Expected list arg to append");
 
   auto result = std::make_shared<List>();
   for (auto const& first : *args[0].get_list())
@@ -189,7 +197,7 @@ Expr Append(List const& args)
 Expr Cons(List const& args)
 {
   if (args.size() != 2)
-    AFCT_ERROR("Expected 2 args to cons");
+    AFCT_ARG_ERROR("Expected 2 args to cons");
 
   auto result = List{args[0], args[1]};
   return Expr::FromList(std::make_shared<List>(std::move(result)));
@@ -198,13 +206,13 @@ Expr Cons(List const& args)
 Expr Car(List const& args)
 {
   if (args.size() != 1)
-    AFCT_ERROR("Expected 1 arg to car");
+    AFCT_ARG_ERROR("Expected 1 arg to car");
   if (!args[0].is_list())
-    AFCT_ERROR("Expected list arg to car");
+    AFCT_ARG_ERROR("Expected list arg to car");
 
   auto const& list = *args[0].get_list();
   if (list.empty())
-    AFCT_ERROR("Zero-length list passed to car");
+    AFCT_ARG_ERROR("Zero-length list passed to car");
 
   return list[0];
 }
@@ -212,9 +220,9 @@ Expr Car(List const& args)
 Expr Cdr(List const& args)
 {
   if (args.size() != 1)
-    AFCT_ERROR("Expected 1 arg to cdr");
+    AFCT_ARG_ERROR("Expected 1 arg to cdr");
   if (!args[0].is_list())
-    AFCT_ERROR("Expected list arg to cdr");
+    AFCT_ARG_ERROR("Expected list arg to cdr");
 
   auto result = std::make_shared<List>();
   auto const& input = *args[0].get_list();
@@ -226,13 +234,13 @@ Expr Cdr(List const& args)
 Expr Cat(List const& args)
 {
   if (args.empty())
-    AFCT_ERROR("Expected 1+ args to cat");
+    AFCT_ARG_ERROR("Expected 1+ args to cat");
 
   std::ostringstream stream;
   for (auto const& arg : args)
   {
     if (!arg.is_string())
-      AFCT_ERROR("Expected string args to cat");
+      AFCT_ARG_ERROR("Expected string args to cat");
 
     stream << arg.get_string();
   }
@@ -242,7 +250,7 @@ Expr Cat(List const& args)
 Expr Get(List const& args)
 {
   if (args.size() != 2 || !args[0].is_table())
-    AFCT_ERROR("Expected 2 args to get, table first");
+    AFCT_ARG_ERROR("Expected 2 args to get, table first");
 
   auto const& table = *args[0].get_table();
   auto const& key = args[1];
@@ -256,7 +264,7 @@ Expr Get(List const& args)
 Expr SetBang(List const& args)
 {
   if (args.size() != 3 || !args[0].is_table())
-    AFCT_ERROR("Expected 3 args to set!, table first");
+    AFCT_ARG_ERROR("Expected 3 args to set!, table first");
 
   auto& table = *args[0].get_table();
   auto const& key = args[1];
@@ -268,7 +276,7 @@ Expr SetBang(List const& args)
 Expr Bool(List const& args)
 {
   if (args.size() != 1)
-    AFCT_ERROR("Expected 1 arg to bool");
+    AFCT_ARG_ERROR("Expected 1 arg to bool");
 
   return Expr::FromBool(args[0].truthy());
 }
@@ -276,7 +284,7 @@ Expr Bool(List const& args)
 Expr Double(List const& args)
 {
   if (args.size() != 1)
-    AFCT_ERROR("Expected 1 arg to double");
+    AFCT_ARG_ERROR("Expected 1 arg to double");
 
   auto const& arg = args[0];
 
@@ -292,17 +300,17 @@ Expr Double(List const& args)
     }
     catch (std::exception const&)
     {
-      AFCT_ERROR("Could not convert " << arg << " to double");
+      AFCT_ARG_ERROR("Could not convert " << arg << " to double");
     }
   }
 
-  AFCT_ERROR("Could not convert " << arg << " to double");
+  AFCT_ARG_ERROR("Could not convert " << arg << " to double");
 }
 
 Expr Int(List const& args)
 {
   if (args.size() != 1)
-    AFCT_ERROR("Expected 1 arg to int");
+    AFCT_ARG_ERROR("Expected 1 arg to int");
 
   auto const& arg = args[0];
 
@@ -318,17 +326,17 @@ Expr Int(List const& args)
     }
     catch (std::exception const&)
     {
-      AFCT_ERROR("Could not convert " << arg << " to int");
+      AFCT_ARG_ERROR("Could not convert " << arg << " to int");
     }
   }
 
-  AFCT_ERROR("Could not convert " << arg << " to int");
+  AFCT_ARG_ERROR("Could not convert " << arg << " to int");
 }
 
 Expr String(List const& args)
 {
   if (args.size() != 1)
-    AFCT_ERROR("Expected 1 arg to string");
+    AFCT_ARG_ERROR("Expected 1 arg to string");
 
   std::ostringstream stream;
   stream << args[0];
@@ -338,9 +346,9 @@ Expr String(List const& args)
 Expr Apply(List const& args)
 {
   if (args.size() != 2)
-    AFCT_ERROR("Expected 2 args to apply");
+    AFCT_ARG_ERROR("Expected 2 args to apply");
   if (!args[0].is_function() || !args[1].is_list())
-    AFCT_ERROR("Expected function and list args to apply");
+    AFCT_ARG_ERROR("Expected function and list args to apply");
 
   auto function = args[0].get_function();
   return function->call(*args[1].get_list());
@@ -349,9 +357,9 @@ Expr Apply(List const& args)
 Expr Map(List const& args)
 {
   if (args.size() != 2)
-    AFCT_ERROR("Expected 2 args to map");
+    AFCT_ARG_ERROR("Expected 2 args to map");
   if (!args[0].is_function() || !args[1].is_list())
-    AFCT_ERROR("Expected function and list args to map");
+    AFCT_ARG_ERROR("Expected function and list args to map");
 
   auto function = args[0].get_function();
   auto result = std::make_shared<List>();
@@ -363,9 +371,9 @@ Expr Map(List const& args)
 Expr Filter(List const& args)
 {
   if (args.size() != 2)
-    AFCT_ERROR("Expected 2 args to filter");
+    AFCT_ARG_ERROR("Expected 2 args to filter");
   if (!args[0].is_function() || !args[1].is_list())
-    AFCT_ERROR("Expected function and list args to filter");
+    AFCT_ARG_ERROR("Expected function and list args to filter");
 
   auto function = args[0].get_function();
   auto result = std::make_shared<List>();
@@ -380,7 +388,7 @@ Expr Filter(List const& args)
 Expr Print(List const& args)
 {
   if (args.size() != 1)
-    AFCT_ERROR("Expected 1 arg to print");
+    AFCT_ARG_ERROR("Expected 1 arg to print");
 
   std::cout << args[0] << std::endl;
   return Expr::FromNull();
@@ -389,7 +397,7 @@ Expr Print(List const& args)
 Expr GetEnv(List const& args)
 {
   if (args.size() != 1 || !args[0].is_string())
-    AFCT_ERROR("Expected 1 string arg to getenv");
+    AFCT_ARG_ERROR("Expected 1 string arg to getenv");
 
   char* result = std::getenv(args[0].get_string().c_str());
   if (!result)
@@ -400,9 +408,9 @@ Expr GetEnv(List const& args)
 Expr Rand(List const& args)
 {
   if (args.size() != 2)
-    AFCT_ERROR("Expected 2 args to rand");
+    AFCT_ARG_ERROR("Expected 2 args to rand");
   if (!args[0].is_int() || !args[1].is_int())
-    AFCT_ERROR("Expected int args to rand");
+    AFCT_ARG_ERROR("Expected int args to rand");
 
   std::random_device device;
   std::mt19937 rng(device());
