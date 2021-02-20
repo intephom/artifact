@@ -1,4 +1,5 @@
 #include "parse.hpp"
+
 #include "util.hpp"
 
 namespace afct {
@@ -169,7 +170,8 @@ Expr Parse(std::list<std::string>& tokens)
       catch (std::exception const&)
       {
         if (token.size() >= 2 && token.front() == '"' && token.back() == '"')
-          return Expr::FromString(std::string(token.begin() + 1, token.begin() + token.size() - 1));
+          return Expr::FromString(
+              std::string(token.begin() + 1, token.begin() + token.size() - 1));
         else
           return Expr::FromName(token);
       }
@@ -186,4 +188,4 @@ Expr Parse(std::string text)
   return expr;
 }
 
-}
+} // namespace afct

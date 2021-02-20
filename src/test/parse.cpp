@@ -82,7 +82,6 @@ BOOST_AUTO_TEST_CASE(parse_incomplete_table)
   BOOST_CHECK_THROW(Parse(code), std::runtime_error);
 }
 
-
 BOOST_AUTO_TEST_CASE(parse_list)
 {
   auto code = "(+ 1 2)";
@@ -96,7 +95,10 @@ BOOST_AUTO_TEST_CASE(parse_sublist)
 {
   auto code = "(+ 1 (+ 2 3))";
   auto sublist = {Expr::FromName("+"), Expr::FromInt(2), Expr::FromInt(3)};
-  auto list = {Expr::FromName("+"), Expr::FromInt(1), Expr::FromList(std::make_shared<List>(sublist))};
+  auto list = {
+      Expr::FromName("+"),
+      Expr::FromInt(1),
+      Expr::FromList(std::make_shared<List>(sublist))};
   auto expr = Expr::FromList(std::make_shared<List>(list));
 
   BOOST_TEST(Parse(code) == expr);
@@ -118,23 +120,27 @@ BOOST_AUTO_TEST_CASE(parse_unstarted_list)
 
 BOOST_AUTO_TEST_CASE(parse_types)
 {
-  auto code = R"((null true false 2. 2.7 .7 2 "hello" + (1 2) '(1 2) #('(1 2))))";
+  auto code =
+      R"((null true false 2. 2.7 .7 2 "hello" + (1 2) '(1 2) #('(1 2))))";
   auto sublist = {Expr::FromInt(1), Expr::FromInt(2)};
-  auto subquote = {Expr::FromName("quote"), Expr::FromList(std::make_shared<List>(sublist))};
-  auto subtable = {Expr::FromName("table"), Expr::FromList(std::make_shared<List>(subquote))};
+  auto subquote = {
+      Expr::FromName("quote"), Expr::FromList(std::make_shared<List>(sublist))};
+  auto subtable = {
+      Expr::FromName("table"),
+      Expr::FromList(std::make_shared<List>(subquote))};
   auto list = {
-    Expr::FromNull(),
-    Expr::FromBool(true),
-    Expr::FromBool(false),
-    Expr::FromDouble(2.0),
-    Expr::FromDouble(2.7),
-    Expr::FromDouble(0.7),
-    Expr::FromInt(2),
-    Expr::FromString("hello"),
-    Expr::FromName("+"),
-    Expr::FromList(std::make_shared<List>(sublist)),
-    Expr::FromList(std::make_shared<List>(subquote)),
-    Expr::FromList(std::make_shared<List>(subtable))};
+      Expr::FromNull(),
+      Expr::FromBool(true),
+      Expr::FromBool(false),
+      Expr::FromDouble(2.0),
+      Expr::FromDouble(2.7),
+      Expr::FromDouble(0.7),
+      Expr::FromInt(2),
+      Expr::FromString("hello"),
+      Expr::FromName("+"),
+      Expr::FromList(std::make_shared<List>(sublist)),
+      Expr::FromList(std::make_shared<List>(subquote)),
+      Expr::FromList(std::make_shared<List>(subtable))};
   auto expr = Expr::FromList(std::make_shared<List>(list));
 
   BOOST_TEST(Parse(code) == expr);

@@ -1,15 +1,13 @@
-#include "parse.hpp"
 #include "querier.hpp"
+
+#include "parse.hpp"
 
 namespace afct {
 
-Querier::Querier(Expr expr)
-  : _root(expr)
+Querier::Querier(Expr expr) : _root(expr)
 {}
 
-bool Querier::get_list(
-  std::string const& path,
-  std::vector<Expr>& result) const
+bool Querier::get_list(std::string const& path, std::vector<Expr>& result) const
 {
   auto elements = Split("/", path);
   Expr expr;
@@ -33,7 +31,7 @@ bool Querier::get_list(
   }
   else if (expr.is_table())
   {
-    for(auto const& pair : *expr.get_table())
+    for (auto const& pair : *expr.get_table())
     {
       std::vector<Expr> list({pair.first, pair.second});
       result.push_back(Expr::FromList(std::make_shared<List>(std::move(list))));
@@ -177,4 +175,4 @@ bool Querier::find(std::vector<std::string> const& elements, Expr& result) const
   return true;
 }
 
-}
+} // namespace afct

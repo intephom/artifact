@@ -3,7 +3,7 @@
 ## Overview
 
 - A simple Lisp dialect
-- Includes a an expression builder and querier
+- Includes an expression builder and querier
 
 ## Requirements
 

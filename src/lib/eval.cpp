@@ -1,7 +1,8 @@
 #include "eval.hpp"
+
 #include "function.hpp"
-#include "native.hpp"
 #include "parse.hpp"
+#include "prelude.hpp"
 #include <fstream>
 
 #define AFCT_EVAL_ERROR(message) \
@@ -14,55 +15,10 @@
 
 namespace afct {
 
-Env Prelude()
-{
-  auto prelude = Env();
-  std::vector<std::pair<std::string, std::function<Expr(List const&)>>> symbol_and_function{
-    {"=", Eq},
-    {"+", Add},
-    {"-", Sub},
-    {"*", Mult},
-    {"/", Div},
-    {"<", LessThan},
-    {">", GreaterThan},
-    {"and", And},
-    {"or", Or},
-    {"not", Not},
-    {"list", ToList},
-    {"table", ToTable},
-    {"length", Length},
-    {"append", Append},
-    {"cons", Cons},
-    {"car", Car},
-    {"cdr", Cdr},
-    {"cat", Cat},
-    {"get", Get},
-    {"set!", SetBang},
-    {"bool", Bool},
-    {"double", Double},
-    {"int", Int},
-    {"string", String},
-    {"apply", Apply},
-    {"map", Map},
-    {"filter", Filter},
-    {"print", Print},
-    {"getenv", GetEnv},
-    {"rand", Rand} };
-
-  for (auto const& pair : symbol_and_function)
-    prelude.set(pair.first, NativeFuncToExpr(pair.first, pair.second));
-
-  return prelude;
-}
-
 Expr Eval(Expr const& expr, Env& env)
 {
-  if (expr.is_null()
-    || expr.is_bool()
-    || expr.is_double()
-    || expr.is_int()
-    || expr.is_string()
-    || expr.is_table())
+  if (expr.is_null() || expr.is_bool() || expr.is_double() || expr.is_int() ||
+      expr.is_string() || expr.is_table())
   {
     return expr;
   }
@@ -101,7 +57,7 @@ Expr Eval(Expr const& expr, Env& env)
     auto const& cond = list[1];
     auto const& conseq = list[2];
     auto const& alt = list[3];
-    return Eval(cond, env).truthy() ?  Eval(conseq, env) : Eval(alt, env);
+    return Eval(cond, env).truthy() ? Eval(conseq, env) : Eval(alt, env);
   }
   else if (name == "define")
   {
@@ -124,7 +80,8 @@ Expr Eval(Expr const& expr, Env& env)
     auto const& body = list[2];
     if (!args.is_list())
       AFCT_EVAL_ERROR("Expected list args in lambda");
-    return Expr::FromFunction(std::make_shared<Function>("lambda", *args.get_list(), body, &env));
+    return Expr::FromFunction(
+        std::make_shared<Function>("lambda", *args.get_list(), body, &env));
   }
   else if (name == "begin")
   {
@@ -168,8 +125,7 @@ Expr Eval(std::filesystem::path const& path, Env& env)
     AFCT_ERROR("Failed to open " << path);
 
   std::string input(
-    (std::istreambuf_iterator<char>(file)),
-    std::istreambuf_iterator<char>());
+      (std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
   return Eval(input);
 }
@@ -180,4 +136,4 @@ Expr Eval(std::filesystem::path const& path)
   return Eval(path, env);
 }
 
-}
+} // namespace afct

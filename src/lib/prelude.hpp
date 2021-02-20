@@ -1,5 +1,6 @@
-#include "expr.hpp"
-#include "function.hpp"
+#pragma once
+
+#include "env.hpp"
 
 namespace afct {
 
@@ -34,6 +35,6 @@ Expr Print(List const& args);
 Expr GetEnv(List const& args);
 Expr Rand(List const& args);
 
-Expr NativeFuncToExpr(std::string name, std::function<Expr(List const&)> f);
+Env Prelude();
 
 } // namespace afct

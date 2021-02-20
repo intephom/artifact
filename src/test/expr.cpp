@@ -1,5 +1,6 @@
-#include "eval.hpp"
 #include "expr.hpp"
+
+#include "eval.hpp"
 #include "function.hpp"
 #include "parse.hpp"
 #define BOOST_TEST_DYN_LINK
@@ -10,8 +11,15 @@ using namespace afct;
 class DummyFunction : public IFunction
 {
 public:
-  std::string name() const final { return "dummy"; }
-  Expr call(List const& args) final { return Expr::FromNull(); }
+  std::string name() const final
+  {
+    return "dummy";
+  }
+
+  Expr call(List const& args) final
+  {
+    return Expr::FromNull();
+  }
 };
 
 BOOST_AUTO_TEST_CASE(expr_is)
@@ -22,7 +30,9 @@ BOOST_AUTO_TEST_CASE(expr_is)
   BOOST_TEST(Expr::FromInt(2).is_int() == true);
   BOOST_TEST(Expr::FromString("string").is_string() == true);
   BOOST_TEST(Expr::FromName("+").is_name() == true);
-  BOOST_TEST(Expr::FromFunction(std::make_shared<DummyFunction>()).is_function() == true);
+  BOOST_TEST(
+      Expr::FromFunction(std::make_shared<DummyFunction>()).is_function() ==
+      true);
   BOOST_TEST(Parse("(1 2)").is_list() == true);
   BOOST_TEST(Eval(std::string("#(1 2)")).is_table() == true);
 }
@@ -56,7 +66,8 @@ BOOST_AUTO_TEST_CASE(expr_truthy)
   BOOST_TEST(Expr::FromString("").truthy() == false);
   BOOST_TEST(Expr::FromName("+").truthy() == true);
   BOOST_TEST(Expr::FromName("").truthy() == false);
-  BOOST_TEST(Expr::FromFunction(std::make_shared<DummyFunction>()).truthy() == true);
+  BOOST_TEST(
+      Expr::FromFunction(std::make_shared<DummyFunction>()).truthy() == true);
   BOOST_TEST(Expr::FromFunction(nullptr).truthy() == false);
   BOOST_TEST(Eval(std::string("'(1 2)")).truthy() == true);
   BOOST_TEST(Eval(std::string("'()")).truthy() == false);
@@ -77,13 +88,16 @@ BOOST_AUTO_TEST_CASE(expr_unquote)
   BOOST_TEST(Unquote(Parse("(quote (1 1))")) == Parse("(1 1)"));
   BOOST_TEST(Unquote(Parse("'(1 1)")) == Parse("(1 1)"));
   BOOST_TEST(Unquote(Parse("(print 27)")) == Parse("(print 27)"));
-  BOOST_TEST(Unquote(Parse("#(1 '(1 2) 3 '(3 4))")) == Parse("#(1 '(1 2) 3 '(3 4))"));
+  BOOST_TEST(
+      Unquote(Parse("#(1 '(1 2) 3 '(3 4))")) == Parse("#(1 '(1 2) 3 '(3 4))"));
 }
 
 BOOST_AUTO_TEST_CASE(expr_ostream)
 {
-  auto code = R"((null () true false 2. 2.7 .7 2 "hello" + (1 2 '(3 4)) (quote (1 2))))";
-  auto sugared = R"((null () true false 2 2.7 0.7 2 "hello" + (1 2 '(3 4)) '(1 2)))";
+  auto code =
+      R"((null () true false 2. 2.7 .7 2 "hello" + (1 2 '(3 4)) (quote (1 2))))";
+  auto sugared =
+      R"((null () true false 2 2.7 0.7 2 "hello" + (1 2 '(3 4)) '(1 2)))";
   auto expr = Parse(code);
   std::ostringstream stream;
   stream << expr;
@@ -100,6 +114,7 @@ BOOST_AUTO_TEST_CASE(expr_ostream_table)
   std::ostringstream stream;
   stream << expr;
 
-  bool ok = stream.str() == sugared_ordered || stream.str() == sugared_unordered;
+  bool ok =
+      stream.str() == sugared_ordered || stream.str() == sugared_unordered;
   BOOST_TEST(ok);
 }

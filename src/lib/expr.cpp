@@ -1,7 +1,35 @@
 #include "expr.hpp"
+
 #include "function.hpp"
 #include "util.hpp"
 #include <functional>
+
+namespace {
+
+template<class T, class F>
+std::ostream& FormatContainer(
+    std::ostream& stream,
+    std::string const& start,
+    std::string const& end,
+    std::string const& sep,
+    T const& container,
+    F formatter)
+{
+  std::ostringstream substream;
+
+  substream << start;
+  for (auto const& item : container)
+  {
+    formatter(substream, item);
+    substream << sep;
+  }
+  substream.seekp(-1, std::ios_base::end);
+  substream << end;
+
+  return stream << substream.str();
+}
+
+} // namespace
 
 namespace std {
 
@@ -11,25 +39,25 @@ std::size_t hash<afct::Expr>::operator()(afct::Expr const& expr) const
 
   switch (expr.get_type())
   {
-    case Type::Null: AFCT_ERROR("Null not usable as table key");
-    case Type::Bool: return std::hash<bool>()(expr.get_bool());
-    case Type::Double: return std::hash<double>()(expr.get_double());
-    case Type::Int: return std::hash<int64_t>()(expr.get_int());
-    case Type::String: return std::hash<std::string>()(expr.get_string());
-    case Type::Name: return std::hash<std::string>()(expr.get_name());
-    case Type::Function: return std::hash<std::string>()(expr.get_function()->name());
-    case Type::List: AFCT_ERROR("List not usable as table key");
-    case Type::Table: AFCT_ERROR("Table not usable as table key");
-    default: AFCT_ERROR("Type not covered in std::hash");
+  case Type::Null: AFCT_ERROR("Null not usable as table key");
+  case Type::Bool: return std::hash<bool>()(expr.get_bool());
+  case Type::Double: return std::hash<double>()(expr.get_double());
+  case Type::Int: return std::hash<int64_t>()(expr.get_int());
+  case Type::String: return std::hash<std::string>()(expr.get_string());
+  case Type::Name: return std::hash<std::string>()(expr.get_name());
+  case Type::Function:
+    return std::hash<std::string>()(expr.get_function()->name());
+  case Type::List: AFCT_ERROR("List not usable as table key");
+  case Type::Table: AFCT_ERROR("Table not usable as table key");
+  default: AFCT_ERROR("Type not covered in std::hash");
   }
 }
 
-}
+} // namespace std
 
 namespace afct {
 
-Expr::Expr(Type type)
-  : _type(type)
+Expr::Expr(Type type) : _type(type)
 {}
 
 Expr Expr::FromNull()
@@ -168,7 +196,7 @@ double Expr::get_double() const
 int64_t Expr::get_int() const
 {
   if (!is_int())
-    AFCT_ERROR("Expression " << *this << " is not a int");
+    AFCT_ERROR("Expression " << *this << " is not an int");
 
   return _i;
 }
@@ -183,7 +211,7 @@ double Expr::get_numeric() const
     AFCT_ERROR("Expression " << *this << " is not numeric");
 }
 
-std::string Expr::get_string() const
+std::string const& Expr::get_string() const
 {
   if (!is_string())
     AFCT_ERROR("Expression " << *this << " is not a string");
@@ -191,7 +219,7 @@ std::string Expr::get_string() const
   return _sn;
 }
 
-std::string Expr::get_name() const
+std::string const& Expr::get_name() const
 {
   if (!is_name())
     AFCT_ERROR("Expression " << *this << " is not a name");
@@ -199,7 +227,7 @@ std::string Expr::get_name() const
   return _sn;
 }
 
-std::shared_ptr<IFunction> Expr::get_function() const
+std::shared_ptr<IFunction> const& Expr::get_function() const
 {
   if (!is_function())
     AFCT_ERROR("Expression " << *this << " is not a function");
@@ -207,7 +235,7 @@ std::shared_ptr<IFunction> Expr::get_function() const
   return _f;
 }
 
-std::shared_ptr<List> Expr::get_list() const
+std::shared_ptr<List> const& Expr::get_list() const
 {
   if (!is_list())
     AFCT_ERROR("Expression " << *this << " is not a list");
@@ -215,7 +243,7 @@ std::shared_ptr<List> Expr::get_list() const
   return _l;
 }
 
-std::shared_ptr<Table> Expr::get_table() const
+std::shared_ptr<Table> const& Expr::get_table() const
 {
   if (!is_table())
     AFCT_ERROR("Expression " << *this << " is not a table");
@@ -225,13 +253,8 @@ std::shared_ptr<Table> Expr::get_table() const
 
 bool Expr::truthy() const
 {
-  return _b
-    || _d
-    || _i
-    || !_sn.empty()
-    || _f.get()
-    || (_l && !_l->empty())
-    || (_t && !_t->empty());
+  return _b || _d || _i || !_sn.empty() || _f.get() || (_l && !_l->empty()) ||
+      (_t && !_t->empty());
 }
 
 bool operator==(Expr const& lhs, Expr const& rhs)
@@ -244,14 +267,15 @@ bool operator==(Expr const& lhs, Expr const& rhs)
 
   switch (lhs.get_type())
   {
-    case Type::Null: return rhs.get_type() == Type::Null;
-    case Type::Bool: return lhs.get_bool() == rhs.get_bool();
-    case Type::String: return lhs.get_string() == rhs.get_string();
-    case Type::Name: return lhs.get_name() == rhs.get_name();
-    case Type::Function: return lhs.get_function()->name() == rhs.get_function()->name();
-    case Type::List: return *lhs.get_list() == *rhs.get_list();
-    case Type::Table: return *lhs.get_table() == *rhs.get_table();
-    default: AFCT_ERROR("Type not covered in ==");
+  case Type::Null: return rhs.get_type() == Type::Null;
+  case Type::Bool: return lhs.get_bool() == rhs.get_bool();
+  case Type::String: return lhs.get_string() == rhs.get_string();
+  case Type::Name: return lhs.get_name() == rhs.get_name();
+  case Type::Function:
+    return lhs.get_function()->name() == rhs.get_function()->name();
+  case Type::List: return *lhs.get_list() == *rhs.get_list();
+  case Type::Table: return *lhs.get_table() == *rhs.get_table();
+  default: AFCT_ERROR("Type not covered in ==");
   }
 }
 
@@ -291,28 +315,31 @@ std::ostream& operator<<(std::ostream& stream, Expr const& expr)
       if (list.empty())
         return stream << "()";
 
-      std::ostringstream substream;
-      substream << "(";
-      for (auto const& subexpr : list)
-        substream << subexpr << " ";
-      substream.seekp(-1, std::ios_base::end);
-      substream << ")";
-      return stream << substream.str();
+      return FormatContainer(
+          stream,
+          "(",
+          ")",
+          " ",
+          list,
+          [](std::ostream& stream, auto const& element) { stream << element; });
     }
   }
   else if (type == Type::Table)
   {
     auto const& table = *expr.get_table();
+
     if (table.empty())
       return stream << "#()";
 
-    stream << "#(";
-    std::ostringstream substream;
-    for (auto const& pair : table)
-      substream << pair.first << " " << pair.second << " ";
-    substream.seekp(-1, std::ios_base::end);
-    substream << ")";
-    return stream << substream.str();
+    return FormatContainer(
+        stream,
+        "#(",
+        ")",
+        " ",
+        table,
+        [](std::ostream& stream, auto const& pair) {
+          stream << pair.first << " " << pair.second;
+        });
   }
   else
     return stream << "?";
@@ -347,4 +374,4 @@ Expr Unquote(Expr const& expr)
   return list[1];
 }
 
-}
+} // namespace afct

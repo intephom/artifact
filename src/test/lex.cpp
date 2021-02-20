@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(lex_comment_own_line)
       ; comment
       (+ 2 2)))";
   auto lexed = std::list<std::string>{
-    "(", "begin", "(", "+", "1", "1", ")", "(", "+", "2", "2", ")", ")"};
+      "(", "begin", "(", "+", "1", "1", ")", "(", "+", "2", "2", ")", ")"};
 
   BOOST_TEST(Lex(code) == lexed);
 }
@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(lex_comment_in_line)
       (+ 1 1) ; comment
       (+ 2 2)))";
   auto lexed = std::list<std::string>{
-    "(", "begin", "(", "+", "1", "1", ")", "(", "+", "2", "2", ")", ")"};
+      "(", "begin", "(", "+", "1", "1", ")", "(", "+", "2", "2", ")", ")"};
 
   BOOST_TEST(Lex(code) == lexed);
 }
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(lex_comment_stress)
       ; comment "comment
       (+ 2 2)))";
   auto lexed = std::list<std::string>{
-    "(", "begin", "(", "+", "1", "1", ")", "(", "+", "2", "2", ")", ")"};
+      "(", "begin", "(", "+", "1", "1", ")", "(", "+", "2", "2", ")", ")"};
 
   BOOST_TEST(Lex(code) == lexed);
 }
@@ -66,7 +66,8 @@ BOOST_AUTO_TEST_CASE(lex_comment_stress)
 BOOST_AUTO_TEST_CASE(lex_string)
 {
   auto code = R"((print "hello" "world"))";
-  auto lexed = std::list<std::string>{"(", "print", R"("hello")", R"("world")", ")"};
+  auto lexed =
+      std::list<std::string>{"(", "print", R"("hello")", R"("world")", ")"};
 
   BOOST_TEST(Lex(code) == lexed);
 }
@@ -81,7 +82,22 @@ BOOST_AUTO_TEST_CASE(lex_incomplete_string)
 BOOST_AUTO_TEST_CASE(lex_table)
 {
   auto code = R"((print #('(1 2) '(3 4))))";
-  auto lexed = std::list<std::string>{"(", "print", "#(", "'", "(", "1", "2", ")", "'", "(", "3", "4", ")", ")", ")"};
+  auto lexed = std::list<std::string>{
+      "(",
+      "print",
+      "#(",
+      "'",
+      "(",
+      "1",
+      "2",
+      ")",
+      "'",
+      "(",
+      "3",
+      "4",
+      ")",
+      ")",
+      ")"};
 
   BOOST_TEST(Lex(code) == lexed);
 }
@@ -97,7 +113,24 @@ BOOST_AUTO_TEST_CASE(lex_whitespace_table)
 {
   auto code = R"((print#
       ('(1 2)) #  ('(3 4))))";
-  auto lexed = std::list<std::string>{"(", "print", "#(", "'", "(", "1", "2", ")", ")", "#(", "'", "(", "3", "4", ")", ")", ")"};
+  auto lexed = std::list<std::string>{
+      "(",
+      "print",
+      "#(",
+      "'",
+      "(",
+      "1",
+      "2",
+      ")",
+      ")",
+      "#(",
+      "'",
+      "(",
+      "3",
+      "4",
+      ")",
+      ")",
+      ")"};
 
   BOOST_TEST(Lex(code) == lexed);
 }
@@ -105,7 +138,8 @@ BOOST_AUTO_TEST_CASE(lex_whitespace_table)
 BOOST_AUTO_TEST_CASE(lex_quote)
 {
   auto code = R"((begin '(1 2)))";
-  auto lexed = std::list<std::string>{"(", "begin", "'", "(", "1", "2", ")", ")"};
+  auto lexed =
+      std::list<std::string>{"(", "begin", "'", "(", "1", "2", ")", ")"};
 
   BOOST_TEST(Lex(code) == lexed);
 }

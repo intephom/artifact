@@ -1,4 +1,6 @@
-#include "native.hpp"
+#include "prelude.hpp"
+
+#include "function.hpp"
 #include "parse.hpp"
 #include "util.hpp"
 #include <cstdlib>
@@ -12,14 +14,19 @@
   do \
   { \
     std::ostringstream stream; \
-    stream << message << ", got " << afct::Expr::FromList(std::make_shared<afct::List>(args)); \
+    stream << message << ", got " \
+           << afct::Expr::FromList(std::make_shared<afct::List>(args)); \
     throw std::runtime_error(stream.str()); \
   } while (false);
 
 namespace afct {
 
 template<class Op>
-Expr Reduce(std::string const& name, List const& args, Op op, std::optional<double> initial)
+Expr Reduce(
+    std::string const& name,
+    List const& args,
+    Op op,
+    std::optional<double> initial)
 {
   if (args.size() < 2)
     AFCT_ARG_ERROR("Expected 2+ args to " << name);
@@ -417,13 +424,31 @@ Expr Rand(List const& args)
 
   std::random_device device;
   std::mt19937 rng(device());
-  std::uniform_int_distribution<std::mt19937::result_type> dist(args[0].get_int(), args[1].get_int());
+  std::uniform_int_distribution<std::mt19937::result_type> dist(
+      args[0].get_int(), args[1].get_int());
   return Expr::FromInt(dist(rng));
 }
 
-Expr NativeFuncToExpr(std::string name, std::function<Expr(List const&)> f)
+Env Prelude()
 {
-  return Expr::FromFunction(std::make_shared<NativeFunction>(std::move(name), f));
+  auto prelude = Env();
+
+  std::vector<std::pair<std::string, std::function<Expr(List const&)>>>
+      symbol_and_function{
+          {"=", Eq},          {"+", Add},         {"-", Sub},
+          {"*", Mult},        {"/", Div},         {"<", LessThan},
+          {">", GreaterThan}, {"and", And},       {"or", Or},
+          {"not", Not},       {"list", ToList},   {"table", ToTable},
+          {"length", Length}, {"append", Append}, {"cons", Cons},
+          {"car", Car},       {"cdr", Cdr},       {"cat", Cat},
+          {"get", Get},       {"set!", SetBang},  {"bool", Bool},
+          {"double", Double}, {"int", Int},       {"string", String},
+          {"apply", Apply},   {"map", Map},       {"filter", Filter},
+          {"print", Print},   {"getenv", GetEnv}, {"rand", Rand}};
+  for (auto const& pair : symbol_and_function)
+    prelude.set(pair.first, NativeFunctionToExpr(pair.first, pair.second));
+
+  return prelude;
 }
 
-}
+} // namespace afct

@@ -1,4 +1,5 @@
 #include "builder.hpp"
+
 #include "eval.hpp"
 #include "parse.hpp"
 #define BOOST_TEST_DYN_LINK
@@ -73,8 +74,10 @@ BOOST_AUTO_TEST_CASE(builder_tables)
   builder.end_table();
   builder.end_list();
 
-  auto code_ordered = R"((#(true #(2.7 #(5 #("hello" #(lambda true expr false)))))))";
-  auto code_unordered = R"((#(true #(2.7 #(5 #("hello" #(expr false lambda true)))))))";
+  auto code_ordered =
+      R"((#(true #(2.7 #(5 #("hello" #(lambda true expr false)))))))";
+  auto code_unordered =
+      R"((#(true #(2.7 #(5 #("hello" #(expr false lambda true)))))))";
 
   auto code = builder.get_string();
   bool ok = code == code_ordered || code == code_unordered;

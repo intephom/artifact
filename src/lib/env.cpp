@@ -20,4 +20,4 @@ Expr Env::find(std::string const& key) const
   return _outer->find(key);
 }
 
-}
+} // namespace afct

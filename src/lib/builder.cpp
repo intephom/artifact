@@ -1,4 +1,5 @@
 #include "builder.hpp"
+
 #include "util.hpp"
 #include <sstream>
 
@@ -145,7 +146,7 @@ bool Builder::push(Expr expr)
   }
   else
   {
-      return false;
+    return false;
   }
 
   if (expr.is_list() || expr.is_table())
@@ -154,4 +155,4 @@ bool Builder::push(Expr expr)
   return true;
 }
 
-}
+} // namespace afct

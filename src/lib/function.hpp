@@ -40,4 +40,6 @@ private:
   std::function<Expr(List const&)> _f;
 };
 
+Expr NativeFunctionToExpr(std::string name, std::function<Expr(List const&)> f);
+
 } // namespace afct

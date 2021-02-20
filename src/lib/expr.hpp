@@ -6,7 +6,9 @@
 #include <vector>
 
 namespace afct {
+
 class Expr;
+
 }
 
 namespace std {
@@ -68,17 +70,17 @@ public:
   double get_double() const;
   int64_t get_int() const;
   double get_numeric() const;
-  std::string get_string() const;
-  std::string get_name() const;
-  std::shared_ptr<IFunction> get_function() const;
-  std::shared_ptr<List> get_list() const;
-  std::shared_ptr<Table> get_table() const;
+  std::string const& get_string() const;
+  std::string const& get_name() const;
+  std::shared_ptr<IFunction> const& get_function() const;
+  std::shared_ptr<List> const& get_list() const;
+  std::shared_ptr<Table> const& get_table() const;
   bool truthy() const;
 
 private:
   Type _type{Type::Unknown};
 
-  bool _b{0};
+  bool _b{false};
   double _d{0.0};
   int64_t _i{0};
   std::string _sn;

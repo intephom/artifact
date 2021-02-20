@@ -1,6 +1,7 @@
+#include "querier.hpp"
+
 #include "eval.hpp"
 #include "parse.hpp"
-#include "querier.hpp"
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 

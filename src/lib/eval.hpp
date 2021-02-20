@@ -8,7 +8,6 @@
 
 namespace afct {
 
-Env Prelude();
 Expr Eval(Expr const& expr, Env& env);
 Expr Eval(std::string input, Env& env);
 Expr Eval(std::string input);
