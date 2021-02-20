@@ -45,8 +45,7 @@ std::size_t hash<afct::Expr>::operator()(afct::Expr const& expr) const
   case Type::Int: return std::hash<int64_t>()(expr.get_int());
   case Type::String: return std::hash<std::string>()(expr.get_string());
   case Type::Name: return std::hash<std::string>()(expr.get_name());
-  case Type::Function:
-    return std::hash<std::string>()(expr.get_function()->name());
+  case Type::Function: AFCT_ERROR("Function not usable as table key");
   case Type::List: AFCT_ERROR("List not usable as table key");
   case Type::Table: AFCT_ERROR("Table not usable as table key");
   default: AFCT_ERROR("Type not covered in std::hash");
@@ -271,8 +270,7 @@ bool operator==(Expr const& lhs, Expr const& rhs)
   case Type::Bool: return lhs.get_bool() == rhs.get_bool();
   case Type::String: return lhs.get_string() == rhs.get_string();
   case Type::Name: return lhs.get_name() == rhs.get_name();
-  case Type::Function:
-    return lhs.get_function()->name() == rhs.get_function()->name();
+  case Type::Function: AFCT_ERROR("Cannot compare functions for equality");
   case Type::List: return *lhs.get_list() == *rhs.get_list();
   case Type::Table: return *lhs.get_table() == *rhs.get_table();
   default: AFCT_ERROR("Type not covered in ==");
