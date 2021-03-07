@@ -118,6 +118,13 @@ BOOST_AUTO_TEST_CASE(parse_unstarted_list)
   BOOST_CHECK_THROW(Parse(code), std::runtime_error);
 }
 
+BOOST_AUTO_TEST_CASE(parse_comment)
+{
+  auto code = R"("hel;lo" ; comm"ent" ; comment)";
+
+  BOOST_TEST(Parse(code) == Expr::FromString("hel;lo"));
+}
+
 BOOST_AUTO_TEST_CASE(parse_types)
 {
   auto code =

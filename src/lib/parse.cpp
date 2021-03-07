@@ -30,7 +30,10 @@ std::list<std::string> Lex(std::string const& text)
     }
     else if (c == ';')
     {
-      in_comment = true;
+      if (in_string)
+        token += c;
+      else
+        in_comment = true;
     }
     else if (c == '"')
     {
