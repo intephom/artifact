@@ -68,56 +68,56 @@ Expr Expr::FromNull()
 Expr Expr::FromBool(bool b)
 {
   Expr expr(Type::Bool);
-  expr._b = b;
+  expr._value = b;
   return expr;
 }
 
 Expr Expr::FromDouble(double d)
 {
   Expr expr(Type::Double);
-  expr._d = d;
+  expr._value = d;
   return expr;
 }
 
 Expr Expr::FromInt(int64_t i)
 {
   Expr expr(Type::Int);
-  expr._i = i;
+  expr._value = i;
   return expr;
 }
 
 Expr Expr::FromString(std::string s)
 {
   Expr expr(Type::String);
-  expr._sn = std::move(s);
+  expr._value = std::move(s);
   return expr;
 }
 
 Expr Expr::FromName(std::string n)
 {
   Expr expr(Type::Name);
-  expr._sn = std::move(n);
+  expr._value = std::move(n);
   return expr;
 }
 
 Expr Expr::FromFunction(std::shared_ptr<IFunction> f)
 {
   Expr expr(Type::Function);
-  expr._f = std::move(f);
+  expr._value = std::move(f);
   return expr;
 }
 
 Expr Expr::FromList(std::shared_ptr<List> l)
 {
   Expr expr(Type::List);
-  expr._l = std::move(l);
+  expr._value = std::move(l);
   return expr;
 }
 
 Expr Expr::FromTable(std::shared_ptr<Table> t)
 {
   Expr expr(Type::Table);
-  expr._t = std::move(t);
+  expr._value = std::move(t);
   return expr;
 }
 
@@ -181,7 +181,7 @@ bool Expr::get_bool() const
   if (!is_bool())
     AFCT_ERROR("Expression " << *this << " is not a bool");
 
-  return _b;
+  return std::get<bool>(_value);
 }
 
 double Expr::get_double() const
@@ -189,7 +189,7 @@ double Expr::get_double() const
   if (!is_double())
     AFCT_ERROR("Expression " << *this << " is not a double");
 
-  return _d;
+  return std::get<double>(_value);
 }
 
 int64_t Expr::get_int() const
@@ -197,7 +197,7 @@ int64_t Expr::get_int() const
   if (!is_int())
     AFCT_ERROR("Expression " << *this << " is not an int");
 
-  return _i;
+  return std::get<int64_t>(_value);
 }
 
 double Expr::get_numeric() const
@@ -215,7 +215,7 @@ std::string const& Expr::get_string() const
   if (!is_string())
     AFCT_ERROR("Expression " << *this << " is not a string");
 
-  return _sn;
+  return std::get<std::string>(_value);
 }
 
 std::string const& Expr::get_name() const
@@ -223,7 +223,7 @@ std::string const& Expr::get_name() const
   if (!is_name())
     AFCT_ERROR("Expression " << *this << " is not a name");
 
-  return _sn;
+  return std::get<std::string>(_value);
 }
 
 std::shared_ptr<IFunction> const& Expr::get_function() const
@@ -231,7 +231,7 @@ std::shared_ptr<IFunction> const& Expr::get_function() const
   if (!is_function())
     AFCT_ERROR("Expression " << *this << " is not a function");
 
-  return _f;
+  return std::get<std::shared_ptr<IFunction>>(_value);
 }
 
 std::shared_ptr<List> const& Expr::get_list() const
@@ -239,7 +239,7 @@ std::shared_ptr<List> const& Expr::get_list() const
   if (!is_list())
     AFCT_ERROR("Expression " << *this << " is not a list");
 
-  return _l;
+  return std::get<std::shared_ptr<List>>(_value);
 }
 
 std::shared_ptr<Table> const& Expr::get_table() const
@@ -247,13 +247,24 @@ std::shared_ptr<Table> const& Expr::get_table() const
   if (!is_table())
     AFCT_ERROR("Expression " << *this << " is not a table");
 
-  return _t;
+  return std::get<std::shared_ptr<Table>>(_value);
 }
 
 bool Expr::truthy() const
 {
-  return _b || _d || _i || !_sn.empty() || _f.get() || (_l && !_l->empty()) ||
-      (_t && !_t->empty());
+  switch (_type)
+  {
+  case Type::Null: return false;
+  case Type::Bool: return get_bool();
+  case Type::Double: return get_double() != 0.0;
+  case Type::Int: return get_int() != 0;
+  case Type::String: return !get_string().empty();
+  case Type::Name: return !get_name().empty();
+  case Type::Function: return get_function() != nullptr;
+  case Type::List: return !get_list()->empty();
+  case Type::Table: return !get_table()->empty();
+  default: AFCT_ERROR("Type not covered truthy()");
+  }
 }
 
 bool operator==(Expr const& lhs, Expr const& rhs)

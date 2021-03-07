@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <variant>
 #include <vector>
 
 namespace afct {
@@ -79,14 +80,15 @@ public:
 
 private:
   Type _type{Type::Unknown};
-
-  bool _b{false};
-  double _d{0.0};
-  int64_t _i{0};
-  std::string _sn;
-  std::shared_ptr<IFunction> _f;
-  std::shared_ptr<List> _l;
-  std::shared_ptr<Table> _t;
+  std::variant<
+      bool,
+      double,
+      int64_t,
+      std::string,
+      std::shared_ptr<IFunction>,
+      std::shared_ptr<List>,
+      std::shared_ptr<Table>>
+      _value;
 };
 
 bool operator==(Expr const& lhs, Expr const& rhs);
