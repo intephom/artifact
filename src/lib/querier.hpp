@@ -8,6 +8,7 @@ namespace afct {
 class Querier
 {
 public:
+  Querier();
   explicit Querier(Expr expr);
 
   bool get_list(std::string const& path, std::vector<Expr>& result) const;

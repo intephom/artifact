@@ -4,6 +4,9 @@
 
 namespace afct {
 
+Querier::Querier() : _root(Expr::FromNull())
+{}
+
 Querier::Querier(Expr expr) : _root(expr)
 {}
 
