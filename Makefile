@@ -22,5 +22,5 @@ clean:
 run: release
 	cd build && src/afct/afct
 
-test: debug
+test: release
 	cd build && src/test/test

@@ -3,6 +3,7 @@
 #include "eval.hpp"
 #include "function.hpp"
 #include "parse.hpp"
+#include "util.hpp"
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
@@ -34,7 +35,7 @@ BOOST_AUTO_TEST_CASE(expr_is)
       Expr::FromFunction(std::make_shared<DummyFunction>()).is_function() ==
       true);
   BOOST_TEST(Parse("(1 2)").is_list() == true);
-  BOOST_TEST(Eval(std::string("#(1 2)")).is_table() == true);
+  BOOST_TEST(EvalSimple("#(1 2)").is_table() == true);
 }
 
 BOOST_AUTO_TEST_CASE(expr_get)
@@ -50,7 +51,7 @@ BOOST_AUTO_TEST_CASE(expr_get)
   auto l = List{Expr::FromInt(1), Expr::FromInt(2)};
   BOOST_TEST(*Parse("(1 2)").get_list() == l);
   auto t = Table({{Expr::FromInt(1), Expr::FromInt(2)}});
-  BOOST_TEST(*Eval(std::string("#(1 2)")).get_table() == t);
+  BOOST_TEST(*EvalSimple("#(1 2)").get_table() == t);
 }
 
 BOOST_AUTO_TEST_CASE(expr_truthy)
@@ -69,10 +70,10 @@ BOOST_AUTO_TEST_CASE(expr_truthy)
   BOOST_TEST(
       Expr::FromFunction(std::make_shared<DummyFunction>()).truthy() == true);
   BOOST_TEST(Expr::FromFunction(nullptr).truthy() == false);
-  BOOST_TEST(Eval(std::string("'(1 2)")).truthy() == true);
-  BOOST_TEST(Eval(std::string("'()")).truthy() == false);
-  BOOST_TEST(Eval(std::string("#(1 2)")).truthy() == true);
-  BOOST_TEST(Eval(std::string("#()")).truthy() == false);
+  BOOST_TEST(EvalSimple("'(1 2)").truthy() == true);
+  BOOST_TEST(EvalSimple("'()").truthy() == false);
+  BOOST_TEST(EvalSimple("#(1 2)").truthy() == true);
+  BOOST_TEST(EvalSimple("#()").truthy() == false);
 }
 
 BOOST_AUTO_TEST_CASE(expr_is_quote)
@@ -108,7 +109,7 @@ BOOST_AUTO_TEST_CASE(expr_ostream)
 BOOST_AUTO_TEST_CASE(expr_ostream_table)
 {
   auto code = R"((table 1 2 3 4))";
-  auto expr = Eval(std::string(code));
+  auto expr = EvalSimple(code);
   auto sugared_ordered = R"(#(1 2 3 4))";
   auto sugared_unordered = R"(#(3 4 1 2))";
   std::ostringstream stream;

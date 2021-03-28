@@ -35,9 +35,14 @@ int main(int argc, char* argv[])
   }
 
   if (argc == 2)
-    afct::Eval(std::filesystem::path(argv[1]));
+  {
+    auto env = afct::Prelude();
+    afct::Eval(std::filesystem::path(argv[1]), env);
+  }
   else
+  {
     Repl();
+  }
 
   return 0;
 }

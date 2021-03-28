@@ -112,12 +112,6 @@ Expr Eval(std::string input, Env& env)
   return Eval(expression, env);
 }
 
-Expr Eval(std::string input)
-{
-  auto env = Prelude();
-  return Eval(std::move(input), env);
-}
-
 Expr Eval(std::filesystem::path const& path, Env& env)
 {
   auto file = std::ifstream(path);
@@ -127,13 +121,7 @@ Expr Eval(std::filesystem::path const& path, Env& env)
   std::string input(
       (std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
-  return Eval(input);
-}
-
-Expr Eval(std::filesystem::path const& path)
-{
-  auto env = Prelude();
-  return Eval(path, env);
+  return Eval(input, env);
 }
 
 } // namespace afct

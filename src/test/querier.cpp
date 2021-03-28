@@ -2,6 +2,7 @@
 
 #include "eval.hpp"
 #include "parse.hpp"
+#include "util.hpp"
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
@@ -10,7 +11,7 @@ using namespace afct;
 BOOST_AUTO_TEST_CASE(querier_list)
 {
   auto code = R"(#("onetwo" '(1 2) "threefour" '(3 4)))";
-  auto querier = Querier(Eval(std::string(code)));
+  auto querier = Querier(EvalSimple(code));
   // unquoted for us
   auto list = *Parse("(1 2)").get_list();
 
@@ -20,7 +21,7 @@ BOOST_AUTO_TEST_CASE(querier_list)
 BOOST_AUTO_TEST_CASE(querier_table)
 {
   auto code = R"(#("toplevel" #(1 2 3 4)))";
-  auto querier = Querier(Eval(std::string(code)));
+  auto querier = Querier(EvalSimple(code));
   auto list_ordered = *Parse("((1 2) (3 4))").get_list();
   auto list_unordered = *Parse("((3 4) (1 2))").get_list();
   auto list = querier.get_list("toplevel");
@@ -33,7 +34,7 @@ BOOST_AUTO_TEST_CASE(querier_table)
 BOOST_AUTO_TEST_CASE(querier_depth)
 {
   auto code = R"(#("toplevel" #("onetwo" '(1 2) "threefour" '(3 4))))";
-  auto querier = Querier(Eval(std::string(code)));
+  auto querier = Querier(EvalSimple(code));
   auto list = *Parse("(1 2)").get_list();
 
   BOOST_TEST(querier.get_list("toplevel/onetwo") == list);
@@ -42,7 +43,7 @@ BOOST_AUTO_TEST_CASE(querier_depth)
 BOOST_AUTO_TEST_CASE(querier_bool)
 {
   auto code = R"(#("toplevel" #("one" true "two" false)))";
-  auto querier = Querier(Eval(std::string(code)));
+  auto querier = Querier(EvalSimple(code));
 
   BOOST_TEST(querier.get<bool>("toplevel/one") == true);
   BOOST_TEST(querier.get<bool>("toplevel/two") == false);
@@ -51,7 +52,7 @@ BOOST_AUTO_TEST_CASE(querier_bool)
 BOOST_AUTO_TEST_CASE(querier_double)
 {
   auto code = R"(#("toplevel" #("one" 2.0 '"two" 2)))";
-  auto querier = Querier(Eval(std::string(code)));
+  auto querier = Querier(EvalSimple(code));
 
   BOOST_TEST(querier.get<double>("toplevel/one") == 2);
   // ints converted as well
@@ -88,7 +89,7 @@ BOOST_AUTO_TEST_CASE(querier_ints)
 
       "i64min" -9223372036854775808
       "i64max" 9223372036854775807))";
-  auto querier = Querier(Eval(std::string(code)));
+  auto querier = Querier(EvalSimple(code));
 
   BOOST_CHECK_THROW(querier.get<int8_t>("i8underflow"), std::runtime_error);
   BOOST_TEST(querier.get<int8_t>("i8min"));
@@ -130,7 +131,7 @@ BOOST_AUTO_TEST_CASE(querier_types)
       "i64" 9223372036854775807
       "string" "hello"
       "name" 'lambda))";
-  auto querier = Querier(Eval(std::string(code)));
+  auto querier = Querier(EvalSimple(code));
 
   BOOST_TEST(querier.get<bool>("bool") == true);
   BOOST_TEST(querier.get<double>("double") == 2.7);

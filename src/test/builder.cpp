@@ -2,6 +2,7 @@
 
 #include "eval.hpp"
 #include "parse.hpp"
+#include "util.hpp"
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
@@ -65,7 +66,7 @@ BOOST_AUTO_TEST_CASE(builder_tables)
   builder.start_table();
   builder.name_key("lambda");
   builder.bool_value(true);
-  builder.expr_key(Eval(std::string("(quote expr)")));
+  builder.expr_key(EvalSimple("(quote expr)"));
   builder.bool_value(false);
   builder.end_table();
   builder.end_table();
