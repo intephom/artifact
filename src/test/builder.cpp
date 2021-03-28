@@ -61,6 +61,8 @@ BOOST_AUTO_TEST_CASE(builder_tables)
   builder.double_key(2.7);
   builder.start_table();
   builder.int_key(5);
+  builder.string_value("to be updated");
+  builder.int_key(5);
   builder.start_table();
   builder.string_key("hello");
   builder.start_table();

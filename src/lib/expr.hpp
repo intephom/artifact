@@ -54,8 +54,8 @@ public:
   static Expr FromString(std::string s);
   static Expr FromName(std::string n);
   static Expr FromFunction(std::shared_ptr<IFunction> f);
-  static Expr FromList(std::shared_ptr<List> l);
-  static Expr FromTable(std::shared_ptr<Table> t);
+  static Expr FromList(List l);
+  static Expr FromTable(Table t);
   bool is_null() const;
   bool is_bool() const;
   bool is_double() const;

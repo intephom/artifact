@@ -28,9 +28,9 @@ Expr Eval(Expr const& expr, Env& env)
   }
   else if (expr.is_table())
   {
-    auto table = std::make_shared<Table>();
+    Table table;
     for (auto const& pair : *expr.get_table())
-      table->insert(std::make_pair(Eval(pair.first, env), Eval(pair.second, env)));
+      table[Eval(pair.first, env)] = Eval(pair.second, env);
     return Expr::FromTable(table);
   }
   else if (!expr.is_list())

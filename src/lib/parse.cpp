@@ -110,38 +110,31 @@ Expr Parse(std::list<std::string>& tokens)
     if (tokens.empty())
       AFCT_ERROR("Expected something after '");
 
-    auto list = std::make_shared<List>();
-    list->push_back(Expr::FromName("quote"));
-    list->push_back(Parse(tokens));
-    return Expr::FromList(list);
+    return Expr::FromList({Expr::FromName("quote"), Parse(tokens)});
   }
   if (token == "#(")
   {
     if (tokens.empty())
       AFCT_ERROR("Expected something after #(");
 
-    auto table = std::make_shared<Table>();
-
     tokens.push_front("(");
     auto list = *Parse(tokens).get_list();
     if (list.size() % 2 != 0)
       AFCT_ERROR("Expected even arg count when constructing table");
 
-    for (auto i = 0; i < list.size(); i += 2)
-      table->insert(std::make_pair(list[i], list[i+1]));
-
-    return Expr::FromTable(table);
+    Table table;
+    for (size_t i = 0; i < list.size(); i += 2)
+      table[list[i]] = list[i + 1];
+    return Expr::FromTable(std::move(table));
   }
   else if (token == "(")
   {
     if (tokens.empty())
       AFCT_ERROR("Expected )");
 
-    auto list = std::make_shared<List>();
+    List list;
     while (!tokens.empty() && tokens.front() != ")")
-    {
-      list->push_back(Parse(tokens));
-    }
+      list.push_back(Parse(tokens));
 
     if (tokens.empty())
       AFCT_ERROR("Expected )");

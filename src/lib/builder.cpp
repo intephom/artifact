@@ -82,7 +82,7 @@ void Builder::expr_key(Expr key)
 
 bool Builder::start_list()
 {
-  auto expr = Expr::FromList(std::make_shared<List>());
+  auto expr = Expr::FromList({});
   return push(std::move(expr));
 }
 
@@ -97,7 +97,7 @@ bool Builder::end_list()
 
 bool Builder::start_table()
 {
-  auto expr = Expr::FromTable(std::make_shared<Table>());
+  auto expr = Expr::FromTable({{}});
   return push(std::move(expr));
 }
 
@@ -141,7 +141,7 @@ bool Builder::push(Expr expr)
     if (_key.get_type() == Type::Unknown)
       return false;
 
-    current.get_table()->emplace(_key, expr);
+    current.get_table()->operator[](_key) = expr;
     _key = Expr();
   }
   else

@@ -36,8 +36,7 @@ bool Querier::get_list(std::string const& path, std::vector<Expr>& result) const
   {
     for (auto const& pair : *expr.get_table())
     {
-      std::vector<Expr> list({pair.first, pair.second});
-      result.push_back(Expr::FromList(std::make_shared<List>(std::move(list))));
+      result.push_back(Expr::FromList({pair.first, pair.second}));
     }
     return true;
   }

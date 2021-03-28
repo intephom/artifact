@@ -107,17 +107,17 @@ Expr Expr::FromFunction(std::shared_ptr<IFunction> f)
   return expr;
 }
 
-Expr Expr::FromList(std::shared_ptr<List> l)
+Expr Expr::FromList(List l)
 {
   Expr expr(Type::List);
-  expr._value = std::move(l);
+  expr._value = std::make_shared<List>(std::move(l));
   return expr;
 }
 
-Expr Expr::FromTable(std::shared_ptr<Table> t)
+Expr Expr::FromTable(Table t)
 {
   Expr expr(Type::Table);
-  expr._value = std::move(t);
+  expr._value = std::make_shared<Table>(std::move(t));
   return expr;
 }
 

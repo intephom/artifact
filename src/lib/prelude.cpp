@@ -15,7 +15,7 @@
   { \
     std::ostringstream stream; \
     stream << message << ", got " \
-           << afct::Expr::FromList(std::make_shared<afct::List>(args)); \
+           << afct::Expr::FromList(args); \
     throw std::runtime_error(stream.str()); \
   } while (false);
 
@@ -164,17 +164,17 @@ Expr Not(List const& args)
 
 Expr ToList(List const& args)
 {
-  return Expr::FromList(std::make_shared<List>(args));
+  return Expr::FromList(args);
 }
 
 Expr ToTable(List const& args)
 {
-  auto table = std::make_shared<Table>();
   if (args.size() % 2 != 0)
     AFCT_ARG_ERROR("Expected even args to table");
 
+  Table table;
   for (size_t i = 0; i < args.size(); i += 2)
-    table->emplace(args[i], args[i + 1]);
+    table[args[i]] = args[i + 1];
   return Expr::FromTable(std::move(table));
 }
 
@@ -193,11 +193,11 @@ Expr Append(List const& args)
   if (!args[0].is_list())
     AFCT_ARG_ERROR("Expected list arg to append");
 
-  auto result = std::make_shared<List>();
+  List result;
   for (auto const& first : *args[0].get_list())
-    result->push_back(first);
+    result.push_back(first);
   for (size_t i = 1; i < args.size(); i++)
-    result->push_back(args[i]);
+    result.push_back(args[i]);
   return Expr::FromList(std::move(result));
 }
 
@@ -206,8 +206,7 @@ Expr Cons(List const& args)
   if (args.size() != 2)
     AFCT_ARG_ERROR("Expected 2 args to cons");
 
-  auto result = List{args[0], args[1]};
-  return Expr::FromList(std::make_shared<List>(std::move(result)));
+  return Expr::FromList({args[0], args[1]});
 }
 
 Expr Car(List const& args)
@@ -220,7 +219,6 @@ Expr Car(List const& args)
   auto const& list = *args[0].get_list();
   if (list.empty())
     AFCT_ARG_ERROR("Zero-length list passed to car");
-
   return list[0];
 }
 
@@ -231,10 +229,10 @@ Expr Cdr(List const& args)
   if (!args[0].is_list())
     AFCT_ARG_ERROR("Expected list arg to cdr");
 
-  auto result = std::make_shared<List>();
+  List result;
   auto const& input = *args[0].get_list();
   for (size_t i = 1; i < input.size(); i++)
-    result->push_back(input[i]);
+    result.push_back(input[i]);
   return Expr::FromList(std::move(result));
 }
 
@@ -369,9 +367,9 @@ Expr Map(List const& args)
     AFCT_ARG_ERROR("Expected function and list args to map");
 
   auto function = args[0].get_function();
-  auto result = std::make_shared<List>();
+  List result;
   for (auto const& element : *args[1].get_list())
-    result->push_back(function->call({element}));
+    result.push_back(function->call({element}));
   return Expr::FromList(std::move(result));
 }
 
@@ -383,11 +381,11 @@ Expr Filter(List const& args)
     AFCT_ARG_ERROR("Expected function and list args to filter");
 
   auto function = args[0].get_function();
-  auto result = std::make_shared<List>();
+  List result;
   for (auto const& element : *args[1].get_list())
   {
     if (function->call({element}).truthy())
-      result->push_back(element);
+      result.push_back(element);
   }
   return Expr::FromList(std::move(result));
 }
