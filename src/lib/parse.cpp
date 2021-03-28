@@ -120,15 +120,17 @@ Expr Parse(std::list<std::string>& tokens)
     if (tokens.empty())
       AFCT_ERROR("Expected something after #(");
 
-    auto list = std::make_shared<List>();
-    list->push_back(Expr::FromName("table"));
+    auto table = std::make_shared<Table>();
 
     tokens.push_front("(");
-    auto pairs = Parse(tokens);
-    for (auto pair : *pairs.get_list())
-      list->push_back(pair);
+    auto list = *Parse(tokens).get_list();
+    if (list.size() % 2 != 0)
+      AFCT_ERROR("Expected even arg count when constructing table");
 
-    return Expr::FromList(list);
+    for (auto i = 0; i < list.size(); i += 2)
+      table->insert(std::make_pair(list[i], list[i+1]));
+
+    return Expr::FromTable(table);
   }
   else if (token == "(")
   {

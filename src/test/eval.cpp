@@ -23,6 +23,7 @@ BOOST_AUTO_TEST_CASE(eval_types)
   BOOST_TEST(EvalSimple("car").is_function() == true);
   BOOST_TEST(EvalSimple("'(1 2)").is_list() == true);
   BOOST_TEST(EvalSimple("#(1 2 3 4)").is_table() == true);
+  BOOST_TEST(EvalSimple("#(1 2 3 (+ 2 2))") == EvalSimple("#(1 2 3 4)"));
 }
 
 BOOST_AUTO_TEST_CASE(eval_builtin)
@@ -59,9 +60,9 @@ BOOST_AUTO_TEST_CASE(eval_stdlib_math)
 
 BOOST_AUTO_TEST_CASE(eval_stdlib_structure)
 {
-  BOOST_TEST(EvalSimple("(list 1 2)") == EvalSimple("'(1 2)"));
+  BOOST_TEST(EvalSimple("(list 1 (+ 1 1))") == EvalSimple("'(1 2)"));
   BOOST_TEST(
-      EvalSimple("(table 1 2 3 4)") == EvalSimple("#(1 2 3 4)"));
+      EvalSimple("(table 1 2 3 (+ 2 2))") == EvalSimple("#(1 2 3 4)"));
   BOOST_TEST(EvalSimple("(length '(1 2))") == Expr::FromInt(2));
   BOOST_TEST(
       EvalSimple("(append '(1 2 3 4) 5)") ==

@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(querier_bool)
 
 BOOST_AUTO_TEST_CASE(querier_double)
 {
-  auto code = R"(#("toplevel" #("one" 2.0 '"two" 2)))";
+  auto code = R"(#("toplevel" #("one" 2.0 "two" 2)))";
   auto querier = Querier(EvalSimple(code));
 
   BOOST_TEST(querier.get<double>("toplevel/one") == 2);

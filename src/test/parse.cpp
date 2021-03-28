@@ -37,24 +37,24 @@ BOOST_AUTO_TEST_CASE(parse_bad_quote)
   BOOST_CHECK_THROW(Parse(code), std::runtime_error);
 }
 
-BOOST_AUTO_TEST_CASE(parse_table_sugar)
+BOOST_AUTO_TEST_CASE(parse_table)
 {
-  auto code = "#('(1 2) '(3 4))";
-  auto first = Parse("'(1 2)");
+  auto code = "#(1 '(3 4))";
+  auto first = Parse("1");
   auto second = Parse("'(3 4)");
-  auto list = {Expr::FromName("table"), first, second};
-  auto expr = Expr::FromList(std::make_shared<List>(list));
+  auto table = Table({{first, second}});
+  auto expr = Expr::FromTable(std::make_shared<Table>(table));
 
   BOOST_TEST(Parse(code) == expr);
 }
 
-BOOST_AUTO_TEST_CASE(parse_table)
+BOOST_AUTO_TEST_CASE(parse_table_noeval)
 {
-  auto code = "(table '(1 2) '(3 4))";
-  auto first = Parse("'(1 2)");
-  auto second = Parse("'(3 4)");
-  auto list = {Expr::FromName("table"), first, second};
-  auto expr = Expr::FromList(std::make_shared<List>(list));
+  auto code = "#(1 (+ 3 4))";
+  auto first = Parse("1");
+  auto second = Parse("(+ 3 4)");
+  auto table = Table({{first, second}});
+  auto expr = Expr::FromTable(std::make_shared<Table>(table));
 
   BOOST_TEST(Parse(code) == expr);
 }
@@ -69,15 +69,22 @@ BOOST_AUTO_TEST_CASE(parse_bad_table)
 BOOST_AUTO_TEST_CASE(parse_empty_table)
 {
   auto code = "#()";
-  auto list = {Expr::FromName("table")};
-  auto expr = Expr::FromList(std::make_shared<List>(list));
+  auto table = std::make_shared<Table>();
+  auto expr = Expr::FromTable(table);
 
   BOOST_TEST(Parse(code) == expr);
 }
 
 BOOST_AUTO_TEST_CASE(parse_incomplete_table)
 {
-  auto code = "#('(1 2)";
+  auto code = "#(1 2";
+
+  BOOST_CHECK_THROW(Parse(code), std::runtime_error);
+}
+
+BOOST_AUTO_TEST_CASE(parse_list_key_table)
+{
+  auto code = "#((+ 1 1) 2)";
 
   BOOST_CHECK_THROW(Parse(code), std::runtime_error);
 }
@@ -128,13 +135,10 @@ BOOST_AUTO_TEST_CASE(parse_comment)
 BOOST_AUTO_TEST_CASE(parse_types)
 {
   auto code =
-      R"((null true false 2. 2.7 .7 2 "hello" + (1 2) '(1 2) #('(1 2))))";
+      R"((null true false 2. 2.7 .7 2 "hello" + (1 2) '(1 2) #(1 2)))";
   auto sublist = {Expr::FromInt(1), Expr::FromInt(2)};
-  auto subquote = {
-      Expr::FromName("quote"), Expr::FromList(std::make_shared<List>(sublist))};
-  auto subtable = {
-      Expr::FromName("table"),
-      Expr::FromList(std::make_shared<List>(subquote))};
+  auto subquote = {Expr::FromName("quote"), Expr::FromList(std::make_shared<List>(sublist))};
+  auto subtable = Table{{afct::Expr::FromInt(1), afct::Expr::FromInt(2)}};
   auto list = {
       Expr::FromNull(),
       Expr::FromBool(true),
@@ -147,7 +151,7 @@ BOOST_AUTO_TEST_CASE(parse_types)
       Expr::FromName("+"),
       Expr::FromList(std::make_shared<List>(sublist)),
       Expr::FromList(std::make_shared<List>(subquote)),
-      Expr::FromList(std::make_shared<List>(subtable))};
+      Expr::FromTable(std::make_shared<Table>(subtable))};
   auto expr = Expr::FromList(std::make_shared<List>(list));
 
   BOOST_TEST(Parse(code) == expr);

@@ -18,13 +18,20 @@ namespace afct {
 Expr Eval(Expr const& expr, Env& env)
 {
   if (expr.is_null() || expr.is_bool() || expr.is_double() || expr.is_int() ||
-      expr.is_string() || expr.is_table())
+      expr.is_string())
   {
     return expr;
   }
   else if (expr.is_name())
   {
     return env.find(expr.get_name());
+  }
+  else if (expr.is_table())
+  {
+    auto table = std::make_shared<Table>();
+    for (auto const& pair : *expr.get_table())
+      table->insert(std::make_pair(Eval(pair.first, env), Eval(pair.second, env)));
+    return Expr::FromTable(table);
   }
   else if (!expr.is_list())
   {
