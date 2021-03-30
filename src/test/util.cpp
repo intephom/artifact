@@ -1,6 +1,7 @@
+#include "util.hpp"
+
 #include "eval.hpp"
 #include "prelude.hpp"
-#include "util.hpp"
 
 namespace afct {
 
@@ -10,4 +11,4 @@ Expr EvalSimple(std::string input)
   return Eval(std::move(input), env);
 }
 
-}
+} // namespace afct

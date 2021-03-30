@@ -14,8 +14,7 @@
   do \
   { \
     std::ostringstream stream; \
-    stream << message << ", got " \
-           << afct::Expr::FromList(args); \
+    stream << message << ", got " << afct::Expr::FromList(args); \
     throw std::runtime_error(stream.str()); \
   } while (false);
 

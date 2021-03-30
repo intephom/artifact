@@ -1,5 +1,6 @@
-#include "util.hpp"
 #include "visitor.hpp"
+
+#include "util.hpp"
 
 namespace afct {
 

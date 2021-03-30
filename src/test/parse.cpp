@@ -87,7 +87,8 @@ BOOST_AUTO_TEST_CASE(parse_list_key_table)
 BOOST_AUTO_TEST_CASE(parse_list)
 {
   auto code = "(+ 1 2)";
-  auto expr = Expr::FromList({Expr::FromName("+"), Expr::FromInt(1), Expr::FromInt(2)});
+  auto expr =
+      Expr::FromList({Expr::FromName("+"), Expr::FromInt(1), Expr::FromInt(2)});
 
   BOOST_TEST(Parse(code) == expr);
 }
@@ -95,10 +96,11 @@ BOOST_AUTO_TEST_CASE(parse_list)
 BOOST_AUTO_TEST_CASE(parse_sublist)
 {
   auto code = "(+ 1 (+ 2 3))";
-  auto expr = Expr::FromList({
-      Expr::FromName("+"),
-      Expr::FromInt(1),
-      Expr::FromList({Expr::FromName("+"), Expr::FromInt(2), Expr::FromInt(3)})});
+  auto expr = Expr::FromList(
+      {Expr::FromName("+"),
+       Expr::FromInt(1),
+       Expr::FromList(
+           {Expr::FromName("+"), Expr::FromInt(2), Expr::FromInt(3)})});
 
   BOOST_TEST(Parse(code) == expr);
 }
@@ -126,8 +128,7 @@ BOOST_AUTO_TEST_CASE(parse_comment)
 
 BOOST_AUTO_TEST_CASE(parse_types)
 {
-  auto code =
-      R"((null true false 2. 2.7 .7 2 "hello" + (1 2) '(1 2) #(1 2)))";
+  auto code = R"((null true false 2. 2.7 .7 2 "hello" + (1 2) '(1 2) #(1 2)))";
   auto sublist = {Expr::FromInt(1), Expr::FromInt(2)};
   auto list = {
       Expr::FromNull(),

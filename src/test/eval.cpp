@@ -62,16 +62,11 @@ BOOST_AUTO_TEST_CASE(eval_stdlib_math)
 BOOST_AUTO_TEST_CASE(eval_stdlib_structure)
 {
   BOOST_TEST(EvalSimple("(list 1 (+ 1 1))") == EvalSimple("'(1 2)"));
-  BOOST_TEST(
-      EvalSimple("(table 1 2 3 (+ 2 2))") == EvalSimple("#(1 2 3 4)"));
-  BOOST_TEST(
-      EvalSimple("(table 1 2 1 3)") == EvalSimple("#(1 3)"));
+  BOOST_TEST(EvalSimple("(table 1 2 3 (+ 2 2))") == EvalSimple("#(1 2 3 4)"));
+  BOOST_TEST(EvalSimple("(table 1 2 1 3)") == EvalSimple("#(1 3)"));
   BOOST_TEST(EvalSimple("(length '(1 2))") == Expr::FromInt(2));
-  BOOST_TEST(
-      EvalSimple("(append '(1 2 3 4) 5)") ==
-      EvalSimple("'(1 2 3 4 5)"));
-  BOOST_TEST(
-      EvalSimple("(cons '(1 2) '(3 4))") == Parse("((1 2) (3 4))"));
+  BOOST_TEST(EvalSimple("(append '(1 2 3 4) 5)") == EvalSimple("'(1 2 3 4 5)"));
+  BOOST_TEST(EvalSimple("(cons '(1 2) '(3 4))") == Parse("((1 2) (3 4))"));
   BOOST_TEST(EvalSimple("(car '(1 2 3))") == Expr::FromInt(1));
   BOOST_TEST(EvalSimple("(cdr '(1 2 3))") == Parse("(2 3)"));
 }
@@ -79,12 +74,10 @@ BOOST_AUTO_TEST_CASE(eval_stdlib_structure)
 BOOST_AUTO_TEST_CASE(eval_stdlib_types)
 {
   BOOST_TEST(
-      EvalSimple(R"((cat  "hello " "world"))") ==
-      Parse(R"("hello world")"));
+      EvalSimple(R"((cat  "hello " "world"))") == Parse(R"("hello world")"));
   BOOST_TEST(EvalSimple("(get #(1 2 3 4) 1)") == Expr::FromInt(2));
   BOOST_TEST(
-      EvalSimple(
-          "(begin (define a #(1 2 3 4)) (set! a 3 5) (get a 3))") ==
+      EvalSimple("(begin (define a #(1 2 3 4)) (set! a 3 5) (get a 3))") ==
       Expr::FromInt(5));
   BOOST_TEST(EvalSimple("(bool 2)") == Expr::FromBool(true));
   BOOST_TEST(EvalSimple("(double 2)") == Expr::FromDouble(2));
@@ -95,12 +88,9 @@ BOOST_AUTO_TEST_CASE(eval_stdlib_types)
 BOOST_AUTO_TEST_CASE(eval_stdlib_functional)
 {
   BOOST_TEST(
-      EvalSimple("(apply (lambda (x y) (* x y)) '(2 3))") ==
-      Expr::FromInt(6));
+      EvalSimple("(apply (lambda (x y) (* x y)) '(2 3))") == Expr::FromInt(6));
   BOOST_TEST(
-      EvalSimple("(map (lambda (x) (* x 2)) '(1 2 3))") ==
-      Parse("(2 4 6)"));
+      EvalSimple("(map (lambda (x) (* x 2)) '(1 2 3))") == Parse("(2 4 6)"));
   BOOST_TEST(
-      EvalSimple("(filter (lambda (x) (= x 2)) '(1 2 3))") ==
-      Parse("(2)"));
+      EvalSimple("(filter (lambda (x) (= x 2)) '(1 2 3))") == Parse("(2)"));
 }

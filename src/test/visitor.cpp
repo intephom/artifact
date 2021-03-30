@@ -18,50 +18,63 @@ public:
   {
     stream << "null";
   }
+
   void bool_value(bool value) override
   {
     stream << "bool " << value;
   }
+
   void double_value(double value) override
   {
     stream << "double " << value;
   }
+
   void int_value(int64_t value) override
   {
     stream << "int " << value;
   }
+
   void string_value(std::string const& value) override
   {
     stream << "string " << value;
   }
+
   void name_value(std::string const& value) override
   {
     stream << "name " << value;
   }
+
   void function_value(std::shared_ptr<IFunction> const& value) override
   {
     stream << "function " << value->name();
   }
+
   void start_list(size_t size) override
   {
     stream << "start list size " << size;
   }
+
   void end_list() override
   {
     stream << "end list";
   }
+
   void start_table(size_t size) override
   {
     stream << "start table size " << size;
+
   }
+
   void start_key() override
   {
     stream << "start key";
   }
+
   void end_key() override
   {
     stream << "end key";
   }
+
   void end_table() override
   {
     stream << "end table";
