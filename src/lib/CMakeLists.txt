@@ -8,4 +8,5 @@ add_library(artifact SHARED
   parse.cpp
   prelude.cpp
   querier.cpp
-  util.cpp)
+  util.cpp
+  visitor.cpp)

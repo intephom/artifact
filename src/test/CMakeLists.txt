@@ -6,5 +6,6 @@ add_executable(test
   main.cpp
   parse.cpp
   querier.cpp
-  util.cpp)
+  util.cpp
+  visitor.cpp)
 target_link_libraries(test artifact stdc++fs)
