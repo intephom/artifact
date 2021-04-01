@@ -3,12 +3,12 @@
 #include <string>
 #include <vector>
 
-#define AFCT_ERROR(message) \
+#define AFCT_ERROR(__message) \
   do \
   { \
-    std::ostringstream stream; \
-    stream << message; \
-    throw std::runtime_error(stream.str()); \
+    std::ostringstream __stream; \
+    __stream << __message; \
+    throw std::runtime_error(__stream.str()); \
   } while (false);
 
 namespace afct {

@@ -3,6 +3,15 @@
 #include "env.hpp"
 #include "expr.hpp"
 #include <functional>
+#include <sstream>
+
+#define AFCT_ARG_ERROR(__args, __message) \
+  do \
+  { \
+    std::ostringstream __stream; \
+    __stream << __message << " but got " << afct::Expr::FromList(__args); \
+    throw std::runtime_error(__stream.str()); \
+  } while (false);
 
 namespace afct {
 
