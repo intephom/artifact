@@ -27,7 +27,7 @@ Expr SetBang(List const& args);
 Expr Bool(List const& args);
 Expr Double(List const& args);
 Expr Int(List const& args);
-Expr String(List const& args);
+Expr ToString(List const& args);
 Expr Apply(List const& args);
 Expr Map(List const& args);
 Expr Filter(List const& args);

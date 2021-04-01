@@ -4,7 +4,7 @@
 
 namespace afct {
 
-void Visit(afct::Expr const& expr, IVisitor* visitor)
+void Visit(Expr const& expr, IVisitor* visitor)
 {
   auto type = expr.get_type();
 

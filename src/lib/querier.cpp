@@ -4,7 +4,7 @@
 
 namespace afct {
 
-Querier::Querier() : _root(Expr::FromNull())
+Querier::Querier() : _root(Expr{})
 {}
 
 Querier::Querier(Expr expr) : _root(expr)
@@ -36,7 +36,7 @@ bool Querier::get_list(std::string const& path, std::vector<Expr>& result) const
   {
     for (auto const& pair : *expr.get_table())
     {
-      result.push_back(Expr::FromList({pair.first, pair.second}));
+      result.push_back(Expr{List{pair.first, pair.second}});
     }
     return true;
   }
@@ -163,7 +163,7 @@ bool Querier::find(std::vector<std::string> const& elements, Expr& result) const
 
     Expr key = Parse(element);
     if (key.is_name())
-      key = Expr::FromString(key.get_name());
+      key = Expr{String{key.get_name()}};
 
     auto const& table = *expr.get_table();
     auto it = table.find(key);

@@ -19,57 +19,54 @@ public:
 
   Expr call(List const& args) final
   {
-    return Expr::FromNull();
+    return Expr{};
   }
 };
 
 BOOST_AUTO_TEST_CASE(expr_is)
 {
-  BOOST_TEST(Expr::FromNull().is_null() == true);
-  BOOST_TEST(Expr::FromBool(true).is_bool() == true);
-  BOOST_TEST(Expr::FromDouble(2.7).is_double() == true);
-  BOOST_TEST(Expr::FromInt(2).is_int() == true);
-  BOOST_TEST(Expr::FromString("string").is_string() == true);
-  BOOST_TEST(Expr::FromName("+").is_name() == true);
-  BOOST_TEST(
-      Expr::FromFunction(std::make_shared<DummyFunction>()).is_function() ==
-      true);
+  BOOST_TEST(Expr{}.is_null() == true);
+  BOOST_TEST(Expr{true}.is_bool() == true);
+  BOOST_TEST(Expr{2.7}.is_double() == true);
+  BOOST_TEST(Expr{2}.is_int() == true);
+  BOOST_TEST(Expr{String{"string"}}.is_string() == true);
+  BOOST_TEST(Expr{Name{"+"}}.is_name() == true);
+  BOOST_TEST(Expr{std::make_shared<DummyFunction>()}.is_function() == true);
   BOOST_TEST(Parse("(1 2)").is_list() == true);
   BOOST_TEST(EvalSimple("#(1 2)").is_table() == true);
 }
 
 BOOST_AUTO_TEST_CASE(expr_get)
 {
-  BOOST_TEST(Expr::FromBool(true).get_bool() == true);
-  BOOST_TEST(Expr::FromBool(false).get_bool() == false);
-  BOOST_TEST(Expr::FromDouble(2.7).get_double() == 2.7);
-  BOOST_TEST(Expr::FromInt(2).get_int() == 2);
-  BOOST_TEST(Expr::FromString("string").get_string() == "string");
-  BOOST_TEST(Expr::FromName("+").get_name() == "+");
+  BOOST_TEST(Expr{true}.get_bool() == true);
+  BOOST_TEST(Expr{false}.get_bool() == false);
+  BOOST_TEST(Expr{2.7}.get_double() == 2.7);
+  BOOST_TEST(Expr{2}.get_int() == 2);
+  BOOST_TEST(Expr{String{"string"}}.get_string() == "string");
+  BOOST_TEST(Expr{Name{"+"}}.get_name() == "+");
   auto f = std::make_shared<DummyFunction>();
-  BOOST_TEST(Expr::FromFunction(f).get_function() == f);
-  auto l = List{Expr::FromInt(1), Expr::FromInt(2)};
+  BOOST_TEST(Expr{f}.get_function() == f);
+  auto l = List{Expr{1}, Expr{2}};
   BOOST_TEST(*Parse("(1 2)").get_list() == l);
-  auto t = Table({{Expr::FromInt(1), Expr::FromInt(2)}});
+  auto t = Table({{Expr{1}, Expr{2}}});
   BOOST_TEST(*EvalSimple("#(1 2)").get_table() == t);
 }
 
 BOOST_AUTO_TEST_CASE(expr_truthy)
 {
-  BOOST_TEST(Expr::FromNull().truthy() == false);
-  BOOST_TEST(Expr::FromBool(true).truthy() == true);
-  BOOST_TEST(Expr::FromBool(false).truthy() == false);
-  BOOST_TEST(Expr::FromDouble(2.7).truthy() == true);
-  BOOST_TEST(Expr::FromDouble(0.0).truthy() == false);
-  BOOST_TEST(Expr::FromInt(2).truthy() == true);
-  BOOST_TEST(Expr::FromInt(0).truthy() == false);
-  BOOST_TEST(Expr::FromString("string").truthy() == true);
-  BOOST_TEST(Expr::FromString("").truthy() == false);
-  BOOST_TEST(Expr::FromName("+").truthy() == true);
-  BOOST_TEST(Expr::FromName("").truthy() == false);
-  BOOST_TEST(
-      Expr::FromFunction(std::make_shared<DummyFunction>()).truthy() == true);
-  BOOST_TEST(Expr::FromFunction(nullptr).truthy() == false);
+  BOOST_TEST(Expr{}.truthy() == false);
+  BOOST_TEST(Expr{true}.truthy() == true);
+  BOOST_TEST(Expr{false}.truthy() == false);
+  BOOST_TEST(Expr{2.7}.truthy() == true);
+  BOOST_TEST(Expr{0.0}.truthy() == false);
+  BOOST_TEST(Expr{2}.truthy() == true);
+  BOOST_TEST(Expr{0}.truthy() == false);
+  BOOST_TEST(Expr{String{"string"}}.truthy() == true);
+  BOOST_TEST(Expr{String{""}}.truthy() == false);
+  BOOST_TEST(Expr{Name{"+"}}.truthy() == true);
+  BOOST_TEST(Expr{Name{""}}.truthy() == false);
+  BOOST_TEST(Expr{std::make_shared<DummyFunction>()}.truthy() == true);
+  BOOST_TEST(Expr{std::shared_ptr<IFunction>()}.truthy() == false);
   BOOST_TEST(EvalSimple("'(1 2)").truthy() == true);
   BOOST_TEST(EvalSimple("'()").truthy() == false);
   BOOST_TEST(EvalSimple("#(1 2)").truthy() == true);

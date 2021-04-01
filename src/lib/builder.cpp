@@ -7,32 +7,32 @@ namespace afct {
 
 bool Builder::null_value()
 {
-  return push(Expr::FromNull());
+  return push(Expr{});
 }
 
 bool Builder::bool_value(bool value)
 {
-  return push(Expr::FromBool(value));
+  return push(Expr{value});
 }
 
 bool Builder::double_value(double value)
 {
-  return push(Expr::FromDouble(value));
+  return push(Expr{value});
 }
 
 bool Builder::int_value(int64_t value)
 {
-  return push(Expr::FromInt(value));
+  return push(Expr{value});
 }
 
 bool Builder::string_value(std::string value)
 {
-  return push(Expr::FromString(std::move(value)));
+  return push(Expr{String{std::move(value)}});
 }
 
 bool Builder::name_value(std::string value)
 {
-  return push(Expr::FromName(std::move(value)));
+  return push(Expr{Name{std::move(value)}});
 }
 
 bool Builder::expr_value(Expr value)
@@ -52,27 +52,27 @@ bool Builder::expr_value(Expr value)
 
 void Builder::bool_key(bool key)
 {
-  _key = Expr::FromBool(key);
+  _key = Expr{key};
 }
 
 void Builder::double_key(double key)
 {
-  _key = Expr::FromDouble(key);
+  _key = Expr{key};
 }
 
 void Builder::int_key(int64_t key)
 {
-  _key = Expr::FromInt(key);
+  _key = Expr{key};
 }
 
 void Builder::string_key(std::string key)
 {
-  _key = Expr::FromString(std::move(key));
+  _key = Expr{String{std::move(key)}};
 }
 
 void Builder::name_key(std::string key)
 {
-  _key = Expr::FromName(std::move(key));
+  _key = Expr{Name{std::move(key)}};
 }
 
 void Builder::expr_key(Expr key)
@@ -82,7 +82,7 @@ void Builder::expr_key(Expr key)
 
 bool Builder::start_list()
 {
-  auto expr = Expr::FromList({});
+  auto expr = Expr{List{}};
   return push(std::move(expr));
 }
 
@@ -97,7 +97,7 @@ bool Builder::end_list()
 
 bool Builder::start_table()
 {
-  auto expr = Expr::FromTable({{}});
+  auto expr = Expr{Table{}};
   return push(std::move(expr));
 }
 

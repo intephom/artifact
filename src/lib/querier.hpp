@@ -25,7 +25,7 @@ private:
   bool get_int(Expr const& value, T& result) const;
   bool find(std::vector<std::string> const& elements, Expr& result) const;
 
-  Expr _root;
+  Expr _root{Type::Unknown};
 };
 
 } // namespace afct
@@ -36,7 +36,7 @@ template<class T>
 bool Querier::get(std::string const& path, T& result) const
 {
   auto elements = Split("/", path);
-  afct::Expr expr;
+  Expr expr;
   if (!find(std::move(elements), expr))
     return false;
   return get<T>(expr, result);

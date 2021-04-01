@@ -62,7 +62,6 @@ public:
   void start_table(size_t size) override
   {
     stream << "start table size " << size;
-
   }
 
   void start_key() override
@@ -85,7 +84,7 @@ BOOST_AUTO_TEST_CASE(visitor)
 {
   auto code =
       R"((list null true false 2.7 27 "hello" 'lambda (lambda (a) (* a 2)) '(1 2) '#(1 2)))";
-  auto env = afct::Prelude();
+  auto env = Prelude();
   auto expr = Eval(std::string(code), env);
 
   Visitor visitor;

@@ -101,7 +101,7 @@ std::list<std::string> Lex(std::string const& text)
 Expr Parse(std::list<std::string>& tokens)
 {
   if (!tokens.size())
-    return Expr::FromNull();
+    return Expr{};
   auto token = tokens.front();
   tokens.pop_front();
 
@@ -110,7 +110,7 @@ Expr Parse(std::list<std::string>& tokens)
     if (tokens.empty())
       AFCT_ERROR("Expected something after '");
 
-    return Expr::FromList({Expr::FromName("quote"), Parse(tokens)});
+    return Expr{List{Expr{Name{"quote"}}, Parse(tokens)}};
   }
   if (token == "#(")
   {
@@ -125,7 +125,7 @@ Expr Parse(std::list<std::string>& tokens)
     Table table;
     for (size_t i = 0; i < list.size(); i += 2)
       table[list[i]] = list[i + 1];
-    return Expr::FromTable(std::move(table));
+    return Expr{std::move(table)};
   }
   else if (token == "(")
   {
@@ -140,16 +140,16 @@ Expr Parse(std::list<std::string>& tokens)
       AFCT_ERROR("Expected )");
     tokens.pop_front();
 
-    return Expr::FromList(list);
+    return Expr{list};
   }
   else
   {
     if (token == "null")
-      return Expr::FromNull();
+      return Expr{};
     if (token == "true")
-      return Expr::FromBool(true);
+      return Expr{true};
     else if (token == "false")
-      return Expr::FromBool(false);
+      return Expr{false};
     else
     {
       try
@@ -157,21 +157,21 @@ Expr Parse(std::list<std::string>& tokens)
         if (token.find('.') != std::string::npos)
         {
           double d = std::stod(token);
-          return Expr::FromDouble(d);
+          return Expr{d};
         }
         else
         {
-          uint64_t i = std::stoll(token);
-          return Expr::FromInt(i);
+          int64_t i = std::stoll(token);
+          return Expr{i};
         }
       }
       catch (std::exception const&)
       {
         if (token.size() >= 2 && token.front() == '"' && token.back() == '"')
-          return Expr::FromString(
-              std::string(token.begin() + 1, token.begin() + token.size() - 1));
+          return Expr{String{std::string(
+              token.begin() + 1, token.begin() + token.size() - 1)}};
         else
-          return Expr::FromName(token);
+          return Expr{Name{token}};
       }
     }
   }

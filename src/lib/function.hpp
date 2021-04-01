@@ -9,7 +9,7 @@
   do \
   { \
     std::ostringstream __stream; \
-    __stream << __message << " but got " << afct::Expr::FromList(__args); \
+    __stream << __message << " but got " << afct::Expr{__args}; \
     throw std::runtime_error(__stream.str()); \
   } while (false);
 

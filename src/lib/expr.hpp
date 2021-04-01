@@ -43,19 +43,30 @@ class IFunction;
 using List = std::vector<Expr>;
 using Table = std::unordered_map<Expr, Expr>;
 
+struct String
+{
+  std::string s;
+};
+
+struct Name
+{
+  std::string n;
+};
+
 class Expr
 {
 public:
-  explicit Expr(Type type = Type::Unknown);
-  static Expr FromNull();
-  static Expr FromBool(bool b);
-  static Expr FromDouble(double d);
-  static Expr FromInt(int64_t i);
-  static Expr FromString(std::string s);
-  static Expr FromName(std::string n);
-  static Expr FromFunction(std::shared_ptr<IFunction> f);
-  static Expr FromList(List l);
-  static Expr FromTable(Table t);
+  Expr(Type type);
+  Expr();
+  explicit Expr(bool b);
+  explicit Expr(double d);
+  explicit Expr(int32_t i);
+  explicit Expr(int64_t i);
+  explicit Expr(String s);
+  explicit Expr(Name n);
+  explicit Expr(std::shared_ptr<IFunction> f);
+  explicit Expr(List l);
+  explicit Expr(Table t);
   bool is_null() const;
   bool is_bool() const;
   bool is_double() const;
@@ -79,7 +90,7 @@ public:
   bool truthy() const;
 
 private:
-  Type _type{Type::Unknown};
+  Type _type{Type::Null};
   std::variant<
       bool,
       double,

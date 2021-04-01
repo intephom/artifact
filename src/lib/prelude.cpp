@@ -50,9 +50,9 @@ Expr Reduce(
   }
 
   if (result == static_cast<uint64_t>(result))
-    return Expr::FromInt(result);
+    return Expr{result};
   else
-    return Expr::FromDouble(result);
+    return Expr{result};
 }
 
 Expr Eq(List const& args)
@@ -60,7 +60,7 @@ Expr Eq(List const& args)
   if (args.size() != 2)
     AFCT_ARG_ERROR(args, "Expected 2 args to =");
 
-  return Expr::FromBool(args[0] == args[1]);
+  return Expr{args[0] == args[1]};
 }
 
 Expr Add(List const& args)
@@ -97,7 +97,7 @@ Expr LessThan(List const& args)
   else
     AFCT_ARG_ERROR(args, "Expected numeric args to <");
 
-  return Expr::FromBool(lhs < rhs);
+  return Expr{lhs < rhs};
 }
 
 Expr GreaterThan(List const& args)
@@ -114,7 +114,7 @@ Expr GreaterThan(List const& args)
   else
     AFCT_ARG_ERROR(args, "Expected numeric args to >");
 
-  return Expr::FromBool(lhs > rhs);
+  return Expr{lhs > rhs};
 }
 
 Expr And(List const& args)
@@ -125,9 +125,9 @@ Expr And(List const& args)
   for (auto const& arg : args)
   {
     if (!arg.truthy())
-      return Expr::FromBool(false);
+      return Expr{false};
   }
-  return Expr::FromBool(true);
+  return Expr{true};
 }
 
 Expr Or(List const& args)
@@ -138,9 +138,9 @@ Expr Or(List const& args)
   for (auto const& arg : args)
   {
     if (arg.truthy())
-      return Expr::FromBool(true);
+      return Expr{true};
   }
-  return Expr::FromBool(false);
+  return Expr{false};
 }
 
 Expr Not(List const& args)
@@ -150,12 +150,12 @@ Expr Not(List const& args)
   if (!args[0].is_bool())
     AFCT_ARG_ERROR(args, "Expected bool arg to not");
 
-  return Expr::FromBool(!args[0].get_bool());
+  return Expr{!args[0].get_bool()};
 }
 
 Expr ToList(List const& args)
 {
-  return Expr::FromList(args);
+  return Expr{args};
 }
 
 Expr ToTable(List const& args)
@@ -166,7 +166,7 @@ Expr ToTable(List const& args)
   Table table;
   for (size_t i = 0; i < args.size(); i += 2)
     table[args[i]] = args[i + 1];
-  return Expr::FromTable(std::move(table));
+  return Expr{std::move(table)};
 }
 
 Expr Length(List const& args)
@@ -174,7 +174,7 @@ Expr Length(List const& args)
   if (args.size() != 1 || !args[0].is_list())
     AFCT_ARG_ERROR(args, "Expected 1 list arg to length");
 
-  return Expr::FromInt(args[0].get_list()->size());
+  return Expr{static_cast<int64_t>(args[0].get_list()->size())};
 }
 
 Expr Append(List const& args)
@@ -189,7 +189,7 @@ Expr Append(List const& args)
     result.push_back(first);
   for (size_t i = 1; i < args.size(); i++)
     result.push_back(args[i]);
-  return Expr::FromList(std::move(result));
+  return Expr{std::move(result)};
 }
 
 Expr Cons(List const& args)
@@ -197,7 +197,7 @@ Expr Cons(List const& args)
   if (args.size() != 2)
     AFCT_ARG_ERROR(args, "Expected 2 args to cons");
 
-  return Expr::FromList({args[0], args[1]});
+  return Expr{List{args[0], args[1]}};
 }
 
 Expr Car(List const& args)
@@ -224,7 +224,7 @@ Expr Cdr(List const& args)
   auto const& input = *args[0].get_list();
   for (size_t i = 1; i < input.size(); i++)
     result.push_back(input[i]);
-  return Expr::FromList(std::move(result));
+  return Expr{std::move(result)};
 }
 
 Expr Cat(List const& args)
@@ -240,7 +240,7 @@ Expr Cat(List const& args)
 
     stream << arg.get_string();
   }
-  return Expr::FromString(stream.str());
+  return Expr{String{stream.str()}};
 }
 
 Expr Get(List const& args)
@@ -252,7 +252,7 @@ Expr Get(List const& args)
   auto const& key = args[1];
   auto it = table.find(key);
   if (it == table.end())
-    return Expr::FromNull();
+    return Expr{};
   else
     return it->second;
 }
@@ -266,7 +266,7 @@ Expr SetBang(List const& args)
   auto const& key = args[1];
   auto const& value = args[2];
   table[key] = value;
-  return Expr::FromNull();
+  return Expr{};
 }
 
 Expr Bool(List const& args)
@@ -274,7 +274,7 @@ Expr Bool(List const& args)
   if (args.size() != 1)
     AFCT_ARG_ERROR(args, "Expected 1 arg to bool");
 
-  return Expr::FromBool(args[0].truthy());
+  return Expr{args[0].truthy()};
 }
 
 Expr Double(List const& args)
@@ -287,12 +287,12 @@ Expr Double(List const& args)
   if (arg.is_double())
     return arg;
   else if (arg.is_int())
-    return Expr::FromDouble(arg.get_int());
+    return Expr{arg.get_int()};
   else if (arg.is_string())
   {
     try
     {
-      return Expr::FromDouble(std::stod(arg.get_string()));
+      return Expr{std::stod(arg.get_string())};
     }
     catch (std::exception const&)
     {
@@ -313,12 +313,12 @@ Expr Int(List const& args)
   if (arg.is_int())
     return arg;
   else if (arg.is_double())
-    return Expr::FromInt(arg.get_double());
+    return Expr{static_cast<int64_t>(arg.get_double())};
   else if (arg.is_string())
   {
     try
     {
-      return Expr::FromInt(std::stoi(arg.get_string()));
+      return Expr{static_cast<int64_t>(std::stoll(arg.get_string()))};
     }
     catch (std::exception const&)
     {
@@ -329,14 +329,14 @@ Expr Int(List const& args)
   AFCT_ARG_ERROR(args, "Could not convert " << arg << " to int");
 }
 
-Expr String(List const& args)
+Expr ToString(List const& args)
 {
   if (args.size() != 1)
     AFCT_ARG_ERROR(args, "Expected 1 arg to string");
 
   std::ostringstream stream;
   stream << args[0];
-  return Expr::FromString(stream.str());
+  return Expr{String{stream.str()}};
 }
 
 Expr Apply(List const& args)
@@ -361,7 +361,7 @@ Expr Map(List const& args)
   List result;
   for (auto const& element : *args[1].get_list())
     result.push_back(function->call({element}));
-  return Expr::FromList(std::move(result));
+  return Expr{std::move(result)};
 }
 
 Expr Filter(List const& args)
@@ -378,7 +378,7 @@ Expr Filter(List const& args)
     if (function->call({element}).truthy())
       result.push_back(element);
   }
-  return Expr::FromList(std::move(result));
+  return Expr{std::move(result)};
 }
 
 Expr Print(List const& args)
@@ -390,7 +390,7 @@ Expr Print(List const& args)
     std::cout << args[0].get_string() << std::endl; // avoid ""
   else
     std::cout << args[0] << std::endl;
-  return Expr::FromNull();
+  return Expr{};
 }
 
 Expr GetEnv(List const& args)
@@ -400,8 +400,8 @@ Expr GetEnv(List const& args)
 
   char* result = std::getenv(args[0].get_string().c_str());
   if (!result)
-    return Expr::FromString("");
-  return Expr::FromString(result);
+    return Expr{String{""}};
+  return Expr{String{result}};
 }
 
 Expr Rand(List const& args)
@@ -415,7 +415,7 @@ Expr Rand(List const& args)
   std::mt19937 rng(device());
   std::uniform_int_distribution<std::mt19937::result_type> dist(
       args[0].get_int(), args[1].get_int());
-  return Expr::FromInt(dist(rng));
+  return Expr{static_cast<int64_t>(dist(rng))};
 }
 
 Env Prelude()
@@ -431,7 +431,7 @@ Env Prelude()
           {"length", Length}, {"append", Append}, {"cons", Cons},
           {"car", Car},       {"cdr", Cdr},       {"cat", Cat},
           {"get", Get},       {"set!", SetBang},  {"bool", Bool},
-          {"double", Double}, {"int", Int},       {"string", String},
+          {"double", Double}, {"int", Int},       {"string", ToString},
           {"apply", Apply},   {"map", Map},       {"filter", Filter},
           {"print", Print},   {"getenv", GetEnv}, {"rand", Rand}};
   for (auto const& pair : symbol_and_function)

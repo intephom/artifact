@@ -51,8 +51,7 @@ Expr NativeFunction::call(List const& args)
 
 Expr NativeFunctionToExpr(std::string name, std::function<Expr(List const&)> f)
 {
-  return Expr::FromFunction(
-      std::make_shared<NativeFunction>(std::move(name), f));
+  return Expr{std::make_shared<NativeFunction>(std::move(name), f)};
 }
 
 } // namespace afct

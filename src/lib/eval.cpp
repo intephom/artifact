@@ -31,7 +31,7 @@ Expr Eval(Expr const& expr, Env& env)
     Table table;
     for (auto const& pair : *expr.get_table())
       table[Eval(pair.first, env)] = Eval(pair.second, env);
-    return Expr::FromTable(table);
+    return Expr{table};
   }
   else if (!expr.is_list())
   {
@@ -76,7 +76,7 @@ Expr Eval(Expr const& expr, Env& env)
     if (!key.is_name())
       AFCT_EVAL_ERROR("Expected name key to define");
     env.set(key.get_name(), Eval(value, env));
-    return Expr::FromNull();
+    return Expr{};
   }
   else if (name == "lambda")
   {
@@ -87,8 +87,8 @@ Expr Eval(Expr const& expr, Env& env)
     auto const& body = list[2];
     if (!args.is_list())
       AFCT_EVAL_ERROR("Expected list args in lambda");
-    return Expr::FromFunction(
-        std::make_shared<Function>("lambda", *args.get_list(), body, &env));
+    return Expr{
+        std::make_shared<Function>("lambda", *args.get_list(), body, &env)};
   }
   else if (name == "begin")
   {
@@ -99,7 +99,7 @@ Expr Eval(Expr const& expr, Env& env)
       else
         return Eval(list[i], env);
     }
-    return Expr::FromNull();
+    return Expr{};
   }
   else
   {

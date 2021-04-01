@@ -24,6 +24,6 @@ public:
   virtual void end_table() = 0;
 };
 
-void Visit(afct::Expr const& expr, IVisitor* visitor);
+void Visit(Expr const& expr, IVisitor* visitor);
 
 } // namespace afct

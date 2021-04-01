@@ -59,67 +59,38 @@ namespace afct {
 Expr::Expr(Type type) : _type(type)
 {}
 
-Expr Expr::FromNull()
-{
-  Expr expr(Type::Null);
-  return expr;
-}
+Expr::Expr() : _type(Type::Null)
+{}
 
-Expr Expr::FromBool(bool b)
-{
-  Expr expr(Type::Bool);
-  expr._value = b;
-  return expr;
-}
+Expr::Expr(bool b) : _type(Type::Bool), _value(b)
+{}
 
-Expr Expr::FromDouble(double d)
-{
-  Expr expr(Type::Double);
-  expr._value = d;
-  return expr;
-}
+Expr::Expr(double d) : _type(Type::Double), _value(d)
+{}
 
-Expr Expr::FromInt(int64_t i)
-{
-  Expr expr(Type::Int);
-  expr._value = i;
-  return expr;
-}
+Expr::Expr(int32_t i) : _type(Type::Int), _value(static_cast<int64_t>(i))
+{}
 
-Expr Expr::FromString(std::string s)
-{
-  Expr expr(Type::String);
-  expr._value = std::move(s);
-  return expr;
-}
+Expr::Expr(int64_t i) : _type(Type::Int), _value(i)
+{}
 
-Expr Expr::FromName(std::string n)
-{
-  Expr expr(Type::Name);
-  expr._value = std::move(n);
-  return expr;
-}
+Expr::Expr(String s) : _type(Type::String), _value(std::move(s.s))
+{}
 
-Expr Expr::FromFunction(std::shared_ptr<IFunction> f)
-{
-  Expr expr(Type::Function);
-  expr._value = std::move(f);
-  return expr;
-}
+Expr::Expr(Name n) : _type(Type::Name), _value(std::move(n.n))
+{}
 
-Expr Expr::FromList(List l)
-{
-  Expr expr(Type::List);
-  expr._value = std::make_shared<List>(std::move(l));
-  return expr;
-}
+Expr::Expr(std::shared_ptr<IFunction> f)
+  : _type(Type::Function), _value(std::move(f))
+{}
 
-Expr Expr::FromTable(Table t)
-{
-  Expr expr(Type::Table);
-  expr._value = std::make_shared<Table>(std::move(t));
-  return expr;
-}
+Expr::Expr(List l)
+  : _type(Type::List), _value(std::make_shared<List>(std::move(l)))
+{}
+
+Expr::Expr(Table t)
+  : _type(Type::Table), _value(std::make_shared<Table>(std::move(t)))
+{}
 
 bool Expr::is_null() const
 {
