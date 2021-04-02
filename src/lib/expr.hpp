@@ -59,6 +59,7 @@ public:
   Expr(Type type);
   Expr();
   explicit Expr(bool b);
+  explicit Expr(const char*) = delete; // stop implicit conversion to bool
   explicit Expr(double d);
   explicit Expr(int32_t i);
   explicit Expr(int64_t i);

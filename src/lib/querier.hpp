@@ -47,7 +47,7 @@ T Querier::get(std::string const& path) const
 {
   T result;
   if (!get<T>(path, result))
-    AFCT_ERROR("Failed to get from " << path);
+    AFCT_ERROR("Failed to get from " << path << " in " << _root);
   return result;
 }
 
