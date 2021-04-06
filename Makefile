@@ -2,10 +2,10 @@ release:
 	mkdir -p build; cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && make -j 4
 
 install: release
-	mkdir -p /usr/local/include/artifact && cp src/lib/*.hpp /usr/local/include/artifact/ && cp build/src/lib/libartifact.so /usr/local/lib/ && cp build/src/afct/afct /usr/local/bin
+	mkdir -p /usr/local/include/artifact && cp src/lib/*.hpp /usr/local/include/artifact/ && cp build/src/lib/libartifact.so build/src/lib/libartifact.a /usr/local/lib/ && cp build/src/afct/afct /usr/local/bin
 
 uninstall:
-	rm -rf /usr/local/include/artifact/ /usr/local/lib/libartifact.so /usr/local/bin/afct
+	rm -rf /usr/local/include/artifact/ /usr/local/lib/libartifact.so /usr/local/lib/libartifact.a /usr/local/bin/afct
 
 debug:
 	mkdir -p build; cd build && cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && make -j 4
