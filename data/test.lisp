@@ -25,10 +25,7 @@
       (+ (fib (- n 1)) (fib (- n 2))))))
 (print (= (fib 15) 610))
 
-(define t
-  (table
-    '((cat "tr" "u" "e") true)
-    '("false" false)))
+(define t #("true" true "false" false))
 (print (get t "true"))
 
 (define map
@@ -37,7 +34,7 @@
       (define rmap
         (lambda (f l i)
           (if (not (= (length l) 0))
-            (rmap f (cdr l) (cons i (f (car l))))
+            (rmap f (cdr l) (append i (f (car l))))
             i)))
       (rmap f l '()))))
 (define by2
@@ -49,7 +46,7 @@
 
 (print (not (find (map bool '(true 5.0 8 "string" name map)) false)))
 (print (bool '(1 2 3)))
-(print (bool (table '(1 2))))
+(print (bool #(1 2)))
 (print (not (find (map bool '(false 0.0 0 "")) true)))
 (print (not (bool '())))
 (print (not (bool (table))))
