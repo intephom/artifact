@@ -209,7 +209,7 @@ Expr Car(List const& args)
 
   auto const& list = *args[0].get_list();
   if (list.empty())
-    AFCT_ARG_ERROR(args, "Zero-length list passed to car");
+    AFCT_ERROR("Zero-length list passed to car");
   return list[0];
 }
 
@@ -296,11 +296,11 @@ Expr Double(List const& args)
     }
     catch (std::exception const&)
     {
-      AFCT_ARG_ERROR(args, "Could not convert " << arg << " to double");
+      AFCT_ERROR("Could not convert " << arg << " to double");
     }
   }
 
-  AFCT_ARG_ERROR(args, "Could not convert " << arg << " to double");
+  AFCT_ERROR("Could not convert " << arg << " to double");
 }
 
 Expr Int(List const& args)
@@ -322,11 +322,11 @@ Expr Int(List const& args)
     }
     catch (std::exception const&)
     {
-      AFCT_ARG_ERROR(args, "Could not convert " << arg << " to int");
+      AFCT_ERROR("Could not convert " << arg << " to int");
     }
   }
 
-  AFCT_ARG_ERROR(args, "Could not convert " << arg << " to int");
+  AFCT_ERROR("Could not convert " << arg << " to int");
 }
 
 Expr ToString(List const& args)
