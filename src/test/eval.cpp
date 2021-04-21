@@ -57,6 +57,8 @@ BOOST_AUTO_TEST_CASE(eval_stdlib_math)
   BOOST_TEST(EvalSimple("(or false false)") == Expr{false});
   BOOST_TEST(EvalSimple("(not false)") == Expr{true});
   BOOST_TEST(EvalSimple("(not true)") == Expr{false});
+  BOOST_TEST(EvalSimple("(min '(3 6 5 1 4 8 7))") == Expr{1});
+  BOOST_TEST(EvalSimple("(max '(3 6 5 1 4 8 7))") == Expr{8});
 }
 
 BOOST_AUTO_TEST_CASE(eval_stdlib_structure)

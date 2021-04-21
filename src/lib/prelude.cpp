@@ -153,6 +153,40 @@ Expr Not(List const& args)
   return Expr{!args[0].get_bool()};
 }
 
+Expr Min(List const& args)
+{
+  if (args.size() != 1 || !args[0].is_list())
+    AFCT_ARG_ERROR(args, "Expected list arg to min");
+
+  Expr min;
+  for (auto const& element : *args[0].get_list())
+  {
+    if (!element.is_numeric())
+      AFCT_ARG_ERROR(args, "Expected numeric list to min");
+
+    if (min.is_null() || (element.get_numeric() < min.get_numeric()))
+      min = element;
+  }
+  return min;
+}
+
+Expr Max(List const& args)
+{
+  if (args.size() != 1 || !args[0].is_list())
+    AFCT_ARG_ERROR(args, "Expected list arg to max");
+
+  Expr max;
+  for (auto const& element : *args[0].get_list())
+  {
+    if (!element.is_numeric())
+      AFCT_ARG_ERROR(args, "Expected numeric list to max");
+
+    if (max.is_null() || (element.get_numeric() > max.get_numeric()))
+      max = element;
+  }
+  return max;
+}
+
 Expr ToList(List const& args)
 {
   return Expr{args};
@@ -448,18 +482,23 @@ Env Prelude()
   auto prelude = Env();
 
   std::vector<std::pair<std::string, std::function<Expr(List const&)>>>
-      symbol_and_function{
-          {"=", Eq},          {"+", Add},           {"-", Sub},
-          {"*", Mult},        {"/", Div},           {"<", LessThan},
-          {">", GreaterThan}, {"and", And},         {"or", Or},
-          {"not", Not},       {"list", ToList},     {"table", ToTable},
-          {"length", Length}, {"append", Append},   {"cons", Cons},
-          {"car", Car},       {"cdr", Cdr},         {"cat", Cat},
-          {"get", Get},       {"set!", SetBang},    {"keys", Keys},
-          {"values", Values}, {"bool", Bool},       {"double", Double},
-          {"int", Int},       {"string", ToString}, {"apply", Apply},
-          {"map", Map},       {"filter", Filter},   {"print", Print},
-          {"getenv", GetEnv}, {"rand", Rand}};
+      symbol_and_function{{"=", Eq},          {"+", Add},
+                          {"-", Sub},         {"*", Mult},
+                          {"/", Div},         {"<", LessThan},
+                          {">", GreaterThan}, {"and", And},
+                          {"or", Or},         {"not", Not},
+                          {"min", Min},       {"max", Max},
+                          {"list", ToList},   {"table", ToTable},
+                          {"length", Length}, {"append", Append},
+                          {"cons", Cons},     {"car", Car},
+                          {"cdr", Cdr},       {"cat", Cat},
+                          {"get", Get},       {"set!", SetBang},
+                          {"keys", Keys},     {"values", Values},
+                          {"bool", Bool},     {"double", Double},
+                          {"int", Int},       {"string", ToString},
+                          {"apply", Apply},   {"map", Map},
+                          {"filter", Filter}, {"print", Print},
+                          {"getenv", GetEnv}, {"rand", Rand}};
   for (auto const& pair : symbol_and_function)
     prelude.set(pair.first, NativeFunctionToExpr(pair.first, pair.second));
 
