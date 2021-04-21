@@ -65,20 +65,29 @@ BOOST_AUTO_TEST_CASE(eval_stdlib_structure)
   BOOST_TEST(EvalSimple("(table 1 2 3 (+ 2 2))") == EvalSimple("#(1 2 3 4)"));
   BOOST_TEST(EvalSimple("(table 1 2 1 3)") == EvalSimple("#(1 3)"));
   BOOST_TEST(EvalSimple("(length '(1 2))") == Expr{2});
+  BOOST_TEST(EvalSimple("(length #(1 2 3 4 5 6))") == Expr{3});
   BOOST_TEST(EvalSimple("(append '(1 2 3 4) 5)") == EvalSimple("'(1 2 3 4 5)"));
   BOOST_TEST(EvalSimple("(cons '(1 2) '(3 4))") == Parse("((1 2) (3 4))"));
   BOOST_TEST(EvalSimple("(car '(1 2 3))") == Expr{1});
   BOOST_TEST(EvalSimple("(cdr '(1 2 3))") == Parse("(2 3)"));
+  BOOST_TEST(EvalSimple("(get #(1 2 3 4) 1)") == Expr{2});
+  BOOST_TEST(
+      EvalSimple("(begin (define a #(1 2 3 4)) (set! a 3 5) (get a 3))") ==
+      Expr{5});
+  auto keys = *EvalSimple("(keys #(1 2 3 4))").get_list();
+  bool keys_ok =
+      keys == List{Expr{1}, Expr{3}} || keys == List{Expr{3}, Expr{1}};
+  BOOST_TEST(keys_ok);
+  auto values = *EvalSimple("(values #(1 2 3 4))").get_list();
+  bool values_ok =
+      values == List{Expr{2}, Expr{4}} || values == List{Expr{4}, Expr{2}};
+  BOOST_TEST(values_ok);
 }
 
 BOOST_AUTO_TEST_CASE(eval_stdlib_types)
 {
   BOOST_TEST(
       EvalSimple(R"((cat  "hello " "world"))") == Parse(R"("hello world")"));
-  BOOST_TEST(EvalSimple("(get #(1 2 3 4) 1)") == Expr{2});
-  BOOST_TEST(
-      EvalSimple("(begin (define a #(1 2 3 4)) (set! a 3 5) (get a 3))") ==
-      Expr{5});
   BOOST_TEST(EvalSimple("(bool 2)") == Expr{true});
   BOOST_TEST(EvalSimple("(double 2)") == Expr{2.0});
   BOOST_TEST(EvalSimple("(int 2.7)") == Expr{2});

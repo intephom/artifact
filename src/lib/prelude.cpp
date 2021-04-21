@@ -171,10 +171,13 @@ Expr ToTable(List const& args)
 
 Expr Length(List const& args)
 {
-  if (args.size() != 1 || !args[0].is_list())
-    AFCT_ARG_ERROR(args, "Expected 1 list arg to length");
+  if (args.size() != 1 || (!args[0].is_list() && !args[0].is_table()))
+    AFCT_ARG_ERROR(args, "Expected 1 list or table arg to length");
 
-  return Expr{static_cast<int64_t>(args[0].get_list()->size())};
+  if (args[0].is_list())
+    return Expr{static_cast<int64_t>(args[0].get_list()->size())};
+  else
+    return Expr{static_cast<int64_t>(args[0].get_table()->size())};
 }
 
 Expr Append(List const& args)
@@ -267,6 +270,28 @@ Expr SetBang(List const& args)
   auto const& value = args[2];
   table[key] = value;
   return Expr{};
+}
+
+Expr Keys(List const& args)
+{
+  if (args.size() != 1 || !args[0].is_table())
+    AFCT_ARG_ERROR(args, "Expected 1 table arg to keys");
+
+  List result;
+  for (auto const& pair : *args[0].get_table())
+    result.push_back(pair.first);
+  return Expr{std::move(result)};
+}
+
+Expr Values(List const& args)
+{
+  if (args.size() != 1 || !args[0].is_table())
+    AFCT_ARG_ERROR(args, "Expected 1 table arg to values");
+
+  List result;
+  for (auto const& pair : *args[0].get_table())
+    result.push_back(pair.second);
+  return Expr{std::move(result)};
 }
 
 Expr Bool(List const& args)
@@ -424,16 +449,17 @@ Env Prelude()
 
   std::vector<std::pair<std::string, std::function<Expr(List const&)>>>
       symbol_and_function{
-          {"=", Eq},          {"+", Add},         {"-", Sub},
-          {"*", Mult},        {"/", Div},         {"<", LessThan},
-          {">", GreaterThan}, {"and", And},       {"or", Or},
-          {"not", Not},       {"list", ToList},   {"table", ToTable},
-          {"length", Length}, {"append", Append}, {"cons", Cons},
-          {"car", Car},       {"cdr", Cdr},       {"cat", Cat},
-          {"get", Get},       {"set!", SetBang},  {"bool", Bool},
-          {"double", Double}, {"int", Int},       {"string", ToString},
-          {"apply", Apply},   {"map", Map},       {"filter", Filter},
-          {"print", Print},   {"getenv", GetEnv}, {"rand", Rand}};
+          {"=", Eq},          {"+", Add},           {"-", Sub},
+          {"*", Mult},        {"/", Div},           {"<", LessThan},
+          {">", GreaterThan}, {"and", And},         {"or", Or},
+          {"not", Not},       {"list", ToList},     {"table", ToTable},
+          {"length", Length}, {"append", Append},   {"cons", Cons},
+          {"car", Car},       {"cdr", Cdr},         {"cat", Cat},
+          {"get", Get},       {"set!", SetBang},    {"keys", Keys},
+          {"values", Values}, {"bool", Bool},       {"double", Double},
+          {"int", Int},       {"string", ToString}, {"apply", Apply},
+          {"map", Map},       {"filter", Filter},   {"print", Print},
+          {"getenv", GetEnv}, {"rand", Rand}};
   for (auto const& pair : symbol_and_function)
     prelude.set(pair.first, NativeFunctionToExpr(pair.first, pair.second));
 

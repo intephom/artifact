@@ -24,6 +24,8 @@ Expr Cdr(List const& args);
 Expr Cat(List const& args);
 Expr Get(List const& args);
 Expr SetBang(List const& args);
+Expr Keys(List const& args);
+Expr Values(List const& args);
 Expr Bool(List const& args);
 Expr Double(List const& args);
 Expr Int(List const& args);
