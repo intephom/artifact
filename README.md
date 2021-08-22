@@ -2,13 +2,29 @@
 
 ## Overview
 
-- A simple Lisp dialect
-- Includes an expression builder and querier
+A simple Lisp dialect
+
+- Closures
+- Tail-call optimisation
+- Hash table #(syntactic sugar)
+- An expression builder, querier and visitor
+- An interface for pluggable native functions
 
 ## Requirements
 
-- C++17 compiler (hint: try `make clean; CXX=clang++-9 make;`)
+### Compiler
+
+- C++20 compiler (hint: try `make clean; CXX=g++-9 make;`)
+
+### Libraries
+
+- Boost Container (`libboost-container-dev`)
 - Boost Test (`libboost-test-dev`)
+- fmt (`libfmt-dev`)
+
+### Tools
+
+- `rlwrap` (optional) for running the REPL
 
 ## Build
 

@@ -20,7 +20,7 @@ clean:
 	cd build && make clean && cd ..; rm -rf build
 
 run: release
-	cd build && src/afct/afct
+	cd build && rlwrap src/afct/afct
 
 test: release
 	cd build && src/test/test

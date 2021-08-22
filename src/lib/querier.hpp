@@ -2,6 +2,8 @@
 
 #include "expr.hpp"
 #include "util.hpp"
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 namespace afct {
 
@@ -25,7 +27,7 @@ private:
   bool get_int(Expr const& value, T& result) const;
   bool find(std::vector<std::string> const& elements, Expr& result) const;
 
-  Expr _root{Type::Unknown};
+  Expr _root;
 };
 
 } // namespace afct
@@ -47,7 +49,7 @@ T Querier::get(std::string const& path) const
 {
   T result;
   if (!get<T>(path, result))
-    AFCT_ERROR("Failed to get from " << path << " in " << _root);
+    AFCT_ERROR(fmt::format("Failed to get from {} in {}", path, _root));
   return result;
 }
 
@@ -60,7 +62,7 @@ bool Querier::get_int(Expr const& expr, T& result) const
   auto i = expr.get_int();
   if (!std::numeric_limits<T>::is_signed && i < 0)
     return false;
-  if (std::numeric_limits<T>::max() != std::numeric_limits<uint64_t>::max())
+  if (!std::is_same<T, uint64_t>::value)
   {
     if (i > std::numeric_limits<T>::max())
       return false;

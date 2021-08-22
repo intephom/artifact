@@ -20,11 +20,13 @@ void Visit(Expr const& expr, IVisitor* visitor)
     visitor->string_value(expr.get_string());
   else if (type == Type::Name)
     visitor->name_value(expr.get_name());
-  else if (type == Type::Function)
-    visitor->function_value(expr.get_function());
+  else if (type == Type::Lambda)
+    visitor->lambda_value(expr.get_lambda());
+  else if (type == Type::Builtin)
+    visitor->builtin_value(expr.get_builtin());
   else if (type == Type::List)
   {
-    auto const& list = *expr.get_list();
+    auto const& list = expr.get_list();
     visitor->start_list(list.size());
     for (auto const& element : list)
       Visit(element, visitor);
@@ -32,7 +34,7 @@ void Visit(Expr const& expr, IVisitor* visitor)
   }
   else if (type == Type::Table)
   {
-    auto const& table = *expr.get_table();
+    auto const& table = expr.get_table();
     visitor->start_table(table.size());
     for (auto const& pair : table)
     {

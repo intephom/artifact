@@ -1,57 +1,84 @@
 #include "function.hpp"
 
 #include "eval.hpp"
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 namespace afct {
 
-Function::Function(std::string name, List params, Expr body, Env* env)
-  : _name(std::move(name))
-  , _params(std::move(params))
-  , _body(std::move(body))
-  , _env(env)
-{}
-
-std::string Function::name() const
+bool operator==(Lambda const& lhs, Lambda const& rhs)
 {
-  return _name;
+  return lhs.params == rhs.params && lhs.body == rhs.body;
 }
 
-Expr Function::call(List const& args)
+bool operator!=(Lambda const& lhs, Lambda const& rhs)
 {
-  Env env(_env);
+  return !(lhs == rhs);
+}
 
-  if (_params.size() != args.size())
-    AFCT_ERROR(
-        "Expected " << _params.size() << " args to " << _name << " but got "
-                    << args.size());
+std::ostream& operator<<(std::ostream& stream, Lambda const& lambda)
+{
+  return stream << "(lambda " << Expr{lambda.params} << " " << lambda.body
+                << ")";
+}
 
-  for (size_t i = 0; i < _params.size(); i++)
+StdFunction::StdFunction(
+    std::function<Expr(List&, std::shared_ptr<Env>)> function)
+  : _function(std::move(function))
+{}
+
+Expr StdFunction::call(List& args, std::shared_ptr<Env> env)
+{
+  return _function(args, env);
+}
+
+Expr StdFunctionToExpr(
+    std::string name, std::function<Expr(List&, std::shared_ptr<Env>)> function)
+{
+  auto native = std::make_shared<StdFunction>(std::move(function));
+  return Expr{Builtin{std::move(name), std::move(native)}};
+}
+
+bool operator==(Builtin const& lhs, Builtin const& rhs)
+{
+  return lhs.name == rhs.name;
+}
+
+bool operator!=(Builtin const& lhs, Builtin const& rhs)
+{
+  return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& stream, Builtin const& builtin)
+{
+  return stream << builtin.name;
+}
+
+Expr Call(Expr const& expr, List& args, std::shared_ptr<Env> env)
+{
+  if (expr.is_builtin())
+    return expr.get_builtin().function->call(args, env);
+
+  AFCT_CHECK(expr.is_lambda(), "Expected function to call");
+  auto const& lambda = expr.get_lambda();
+
+  AFCT_CHECK(
+      lambda.params.size() == args.size(),
+      fmt::format(
+          "Expected {} args to lambda but got {}",
+          lambda.params.size(),
+          args.size()));
+
+  auto lambda_env = std::make_shared<Env>(env);
+  for (size_t i = 0; i < lambda.params.size(); i++)
   {
-    if (!_params[i].is_name())
-      AFCT_ERROR("Param " << _params[i] << " is not a name");
-    env.set(_params[i].get_name(), args[i]);
+    AFCT_CHECK(
+        lambda.params[i].is_name(),
+        fmt::format("Param {} is not a name", lambda.params[i]));
+    lambda_env->set(lambda.params[i].get_name(), args[i]);
   }
-  return Eval(_body, env);
-}
 
-NativeFunction::NativeFunction(
-    std::string name, std::function<Expr(List const&)> f)
-  : _name(std::move(name)), _f(f)
-{}
-
-std::string NativeFunction::name() const
-{
-  return _name;
-}
-
-Expr NativeFunction::call(List const& args)
-{
-  return _f(args);
-}
-
-Expr NativeFunctionToExpr(std::string name, std::function<Expr(List const&)> f)
-{
-  return Expr{std::make_shared<NativeFunction>(std::move(name), f)};
+  return Eval(lambda.body, lambda_env);
 }
 
 } // namespace afct

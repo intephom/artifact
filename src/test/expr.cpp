@@ -1,27 +1,13 @@
-#include "expr.hpp"
+#include "lib/expr.hpp"
 
-#include "eval.hpp"
-#include "function.hpp"
-#include "parse.hpp"
+#include "lib/eval.hpp"
+#include "lib/function.hpp"
+#include "lib/parse.hpp"
 #include "util.hpp"
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 using namespace afct;
-
-class DummyFunction : public IFunction
-{
-public:
-  std::string name() const final
-  {
-    return "dummy";
-  }
-
-  Expr call(List const& args) final
-  {
-    return Expr{};
-  }
-};
 
 BOOST_AUTO_TEST_CASE(expr_is)
 {
@@ -31,7 +17,10 @@ BOOST_AUTO_TEST_CASE(expr_is)
   BOOST_TEST(Expr{2}.is_int() == true);
   BOOST_TEST(Expr{String{"string"}}.is_string() == true);
   BOOST_TEST(Expr{Name{"+"}}.is_name() == true);
-  BOOST_TEST(Expr{std::make_shared<DummyFunction>()}.is_function() == true);
+  BOOST_TEST(Expr{Lambda{}}.is_lambda() == true);
+  BOOST_TEST(Expr{Lambda{}}.is_function() == true);
+  BOOST_TEST(Expr{Builtin{}}.is_builtin() == true);
+  BOOST_TEST(Expr{Builtin{}}.is_function() == true);
   BOOST_TEST(Parse("(1 2)").is_list() == true);
   BOOST_TEST(EvalSimple("#(1 2)").is_table() == true);
 }
@@ -44,12 +33,14 @@ BOOST_AUTO_TEST_CASE(expr_get)
   BOOST_TEST(Expr{2}.get_int() == 2);
   BOOST_TEST(Expr{String{"string"}}.get_string() == "string");
   BOOST_TEST(Expr{Name{"+"}}.get_name() == "+");
-  auto f = std::make_shared<DummyFunction>();
-  BOOST_TEST(Expr{f}.get_function() == f);
+  Lambda lambda{{Expr{Name{"a"}}}, Expr{Name{"a"}}};
+  BOOST_TEST(EvalSimple("(lambda (a) a)").get_lambda() == lambda);
+  auto f = Builtin{"max"};
+  BOOST_TEST(Expr{f}.get_builtin() == f);
   auto l = List{Expr{1}, Expr{2}};
-  BOOST_TEST(*Parse("(1 2)").get_list() == l);
+  BOOST_TEST(Parse("(1 2)").get_list() == l);
   auto t = Table({{Expr{1}, Expr{2}}});
-  BOOST_TEST(*EvalSimple("#(1 2)").get_table() == t);
+  BOOST_TEST(EvalSimple("#(1 2)").get_table() == t);
 }
 
 BOOST_AUTO_TEST_CASE(expr_truthy)
@@ -65,8 +56,8 @@ BOOST_AUTO_TEST_CASE(expr_truthy)
   BOOST_TEST(Expr{String{""}}.truthy() == false);
   BOOST_TEST(Expr{Name{"+"}}.truthy() == true);
   BOOST_TEST(Expr{Name{""}}.truthy() == false);
-  BOOST_TEST(Expr{std::make_shared<DummyFunction>()}.truthy() == true);
-  BOOST_TEST(Expr{std::shared_ptr<IFunction>()}.truthy() == false);
+  BOOST_TEST(Expr{Lambda{}}.truthy() == true);
+  BOOST_TEST(Expr{Builtin{}}.truthy() == true);
   BOOST_TEST(EvalSimple("'(1 2)").truthy() == true);
   BOOST_TEST(EvalSimple("'()").truthy() == false);
   BOOST_TEST(EvalSimple("#(1 2)").truthy() == true);

@@ -1,4 +1,5 @@
-#include "parse.hpp"
+#include "lib/parse.hpp"
+#include "lib/util.hpp"
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
@@ -76,7 +77,7 @@ BOOST_AUTO_TEST_CASE(lex_incomplete_string)
 {
   auto code = R"((print "hello" "wor))";
 
-  BOOST_CHECK_THROW(Lex(code), std::runtime_error);
+  BOOST_CHECK_THROW(Lex(code), Exception);
 }
 
 BOOST_AUTO_TEST_CASE(lex_table)
@@ -106,7 +107,7 @@ BOOST_AUTO_TEST_CASE(lex_incomplete_table)
 {
   auto code = R"((print #'(1 2) '(3 4))))";
 
-  BOOST_CHECK_THROW(Lex(code), std::runtime_error);
+  BOOST_CHECK_THROW(Lex(code), Exception);
 }
 
 BOOST_AUTO_TEST_CASE(lex_whitespace_table)

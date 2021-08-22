@@ -1,7 +1,7 @@
-#include "builder.hpp"
+#include "lib/builder.hpp"
 
-#include "eval.hpp"
-#include "parse.hpp"
+#include "lib/eval.hpp"
+#include "lib/parse.hpp"
 #include "util.hpp"
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>

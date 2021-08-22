@@ -57,8 +57,7 @@ std::list<std::string> Lex(std::string const& text)
       if (std::isspace(c))
         continue;
 
-      if (c != '(')
-        AFCT_ERROR("Expected table definition #(");
+      AFCT_CHECK(c == '(', "Expected table definition #(");
 
       token += c;
       PushToken();
@@ -89,11 +88,9 @@ std::list<std::string> Lex(std::string const& text)
   }
   PushToken();
 
-  if (in_table_def)
-    AFCT_ERROR("Incomplete table definition");
+  AFCT_CHECK(!in_table_def, "Incomplete table definition");
 
-  if (in_string)
-    AFCT_ERROR("Incomplete string");
+  AFCT_CHECK(!in_string, "Incomplete string");
 
   return result;
 }
@@ -107,20 +104,19 @@ Expr Parse(std::list<std::string>& tokens)
 
   if (token == "'")
   {
-    if (tokens.empty())
-      AFCT_ERROR("Expected something after '");
+    AFCT_CHECK(!tokens.empty(), "Expected something after '");
 
     return Expr{List{Expr{Name{"quote"}}, Parse(tokens)}};
   }
   if (token == "#(")
   {
-    if (tokens.empty())
-      AFCT_ERROR("Expected something after #(");
+    AFCT_CHECK(!tokens.empty(), "Expected something after #(");
 
     tokens.push_front("(");
-    auto list = *Parse(tokens).get_list();
-    if (list.size() % 2 != 0)
-      AFCT_ERROR("Expected even arg count when constructing table");
+    auto list = Parse(tokens).get_list();
+    AFCT_CHECK(
+        list.size() % 2 == 0,
+        "Expected even arg count when constructing table");
 
     Table table;
     for (size_t i = 0; i < list.size(); i += 2)
@@ -129,15 +125,13 @@ Expr Parse(std::list<std::string>& tokens)
   }
   else if (token == "(")
   {
-    if (tokens.empty())
-      AFCT_ERROR("Expected )");
+    AFCT_CHECK(!tokens.empty(), "Expected )");
 
     List list;
     while (!tokens.empty() && tokens.front() != ")")
       list.push_back(Parse(tokens));
 
-    if (tokens.empty())
-      AFCT_ERROR("Expected )");
+    AFCT_CHECK(!tokens.empty(), "Expected )");
     tokens.pop_front();
 
     return Expr{list};
@@ -181,8 +175,7 @@ Expr Parse(std::string text)
 {
   auto tokens = Lex(std::move(text));
   auto expr = Parse(tokens);
-  if (!tokens.empty())
-    AFCT_ERROR("Unexpected tokens at end of input");
+  AFCT_CHECK(tokens.empty(), "Unexpected tokens at end of input");
   return expr;
 }
 

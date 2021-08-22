@@ -31,8 +31,8 @@ private:
   bool push(Expr expr);
 
   std::vector<Expr> _stack;
-  Expr _root{Type::Unknown};
-  Expr _key{Type::Unknown};
+  Expr _root;
+  Expr _key;
 };
 
 } // namespace afct

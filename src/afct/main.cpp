@@ -7,7 +7,7 @@ void Repl()
   auto env = afct::Prelude();
   while (true)
   {
-    std::cout << "> ";
+    std::cout << "afct> ";
     std::string input;
     if (!std::getline(std::cin, input))
       break;
@@ -16,10 +16,10 @@ void Repl()
     {
       auto new_env = env;
       auto result = afct::Eval(input, new_env);
-      env = new_env;
       std::cout << result << std::endl;
+      env = new_env;
     }
-    catch (std::runtime_error const& e)
+    catch (afct::Exception const& e)
     {
       std::cout << e.what() << std::endl;
     }

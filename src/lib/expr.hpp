@@ -17,7 +17,7 @@ namespace std {
 template<>
 struct hash<afct::Expr>
 {
-  std::size_t operator()(afct::Expr const& expr) const;
+  size_t operator()(afct::Expr const& expr) const;
 };
 
 } // namespace std
@@ -26,22 +26,17 @@ namespace afct {
 
 enum class Type
 {
-  Unknown,
   Null,
   Bool,
   Double,
   Int,
   String,
   Name,
-  Function,
+  Lambda,
+  Builtin,
   List,
   Table
 };
-
-class Expr;
-class IFunction;
-using List = std::vector<Expr>;
-using Table = std::unordered_map<Expr, Expr>;
 
 struct String
 {
@@ -53,11 +48,17 @@ struct Name
   std::string n;
 };
 
+class Expr;
+struct Lambda;
+struct Builtin;
+using List = std::vector<Expr>;
+using Table = std::unordered_map<Expr, Expr>;
+
 class Expr
 {
 public:
-  Expr(Type type);
   Expr();
+  explicit Expr(Type type);
   explicit Expr(bool b);
   explicit Expr(const char*) = delete; // stop implicit conversion to bool
   explicit Expr(double d);
@@ -65,7 +66,8 @@ public:
   explicit Expr(int64_t i);
   explicit Expr(String s);
   explicit Expr(Name n);
-  explicit Expr(std::shared_ptr<IFunction> f);
+  explicit Expr(Lambda l);
+  explicit Expr(Builtin b);
   explicit Expr(List l);
   explicit Expr(Table t);
   bool is_null() const;
@@ -75,6 +77,8 @@ public:
   bool is_numeric() const;
   bool is_string() const;
   bool is_name() const;
+  bool is_lambda() const;
+  bool is_builtin() const;
   bool is_function() const;
   bool is_list() const;
   bool is_table() const;
@@ -85,9 +89,19 @@ public:
   double get_numeric() const;
   std::string const& get_string() const;
   std::string const& get_name() const;
-  std::shared_ptr<IFunction> const& get_function() const;
-  std::shared_ptr<List> const& get_list() const;
-  std::shared_ptr<Table> const& get_table() const;
+  Lambda const& get_lambda() const;
+  Builtin const& get_builtin() const;
+  List const& get_list() const;
+  Table const& get_table() const;
+  bool& get_bool();
+  double& get_double();
+  int64_t& get_int();
+  std::string& get_string();
+  std::string& get_name();
+  Lambda& get_lambda();
+  Builtin& get_builtin();
+  List& get_list();
+  Table& get_table();
   bool truthy() const;
 
 private:
@@ -97,7 +111,8 @@ private:
       double,
       int64_t,
       std::string,
-      std::shared_ptr<IFunction>,
+      std::shared_ptr<Lambda>,
+      std::shared_ptr<Builtin>,
       std::shared_ptr<List>,
       std::shared_ptr<Table>>
       _value;

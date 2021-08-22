@@ -1,7 +1,8 @@
-#include "querier.hpp"
+#include "lib/querier.hpp"
 
-#include "eval.hpp"
-#include "parse.hpp"
+#include "lib/eval.hpp"
+#include "lib/parse.hpp"
+#include "lib/util.hpp"
 #include "util.hpp"
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
@@ -13,7 +14,7 @@ BOOST_AUTO_TEST_CASE(querier_list)
   auto code = R"(#("onetwo" '(1 2) "threefour" '(3 4)))";
   auto querier = Querier(EvalSimple(code));
   // unquoted for us
-  auto list = *Parse("(1 2)").get_list();
+  auto list = Parse("(1 2)").get_list();
 
   BOOST_TEST(querier.get_list("onetwo") == list);
 }
@@ -22,8 +23,8 @@ BOOST_AUTO_TEST_CASE(querier_table)
 {
   auto code = R"(#("toplevel" #(1 2 3 4)))";
   auto querier = Querier(EvalSimple(code));
-  auto list_ordered = *Parse("((1 2) (3 4))").get_list();
-  auto list_unordered = *Parse("((3 4) (1 2))").get_list();
+  auto list_ordered = Parse("((1 2) (3 4))").get_list();
+  auto list_unordered = Parse("((3 4) (1 2))").get_list();
   auto list = querier.get_list("toplevel");
 
   // ordering of table pairs is not defined
@@ -35,7 +36,7 @@ BOOST_AUTO_TEST_CASE(querier_depth)
 {
   auto code = R"(#("toplevel" #("onetwo" '(1 2) "threefour" '(3 4))))";
   auto querier = Querier(EvalSimple(code));
-  auto list = *Parse("(1 2)").get_list();
+  auto list = Parse("(1 2)").get_list();
 
   BOOST_TEST(querier.get_list("toplevel/onetwo") == list);
 }
@@ -91,24 +92,24 @@ BOOST_AUTO_TEST_CASE(querier_ints)
       "i64max" 9223372036854775807))";
   auto querier = Querier(EvalSimple(code));
 
-  BOOST_CHECK_THROW(querier.get<int8_t>("i8underflow"), std::runtime_error);
+  BOOST_CHECK_THROW(querier.get<int8_t>("i8underflow"), Exception);
   BOOST_TEST(querier.get<int8_t>("i8min"));
   BOOST_TEST(querier.get<int8_t>("i8max"));
-  BOOST_CHECK_THROW(querier.get<int8_t>("i8overflow"), std::runtime_error);
+  BOOST_CHECK_THROW(querier.get<int8_t>("i8overflow"), Exception);
   BOOST_TEST(querier.get<uint8_t>("i8overflow"));
   BOOST_TEST(querier.get<uint8_t>("u8max"));
 
-  BOOST_CHECK_THROW(querier.get<int16_t>("i16underflow"), std::runtime_error);
+  BOOST_CHECK_THROW(querier.get<int16_t>("i16underflow"), Exception);
   BOOST_TEST(querier.get<int16_t>("i16min"));
   BOOST_TEST(querier.get<int16_t>("i16max"));
-  BOOST_CHECK_THROW(querier.get<int16_t>("i16overflow"), std::runtime_error);
+  BOOST_CHECK_THROW(querier.get<int16_t>("i16overflow"), Exception);
   BOOST_TEST(querier.get<uint16_t>("i16overflow"));
   BOOST_TEST(querier.get<uint16_t>("u16max"));
 
-  BOOST_CHECK_THROW(querier.get<int32_t>("i32underflow"), std::runtime_error);
+  BOOST_CHECK_THROW(querier.get<int32_t>("i32underflow"), Exception);
   BOOST_TEST(querier.get<int32_t>("i32min"));
   BOOST_TEST(querier.get<int32_t>("i32max"));
-  BOOST_CHECK_THROW(querier.get<int32_t>("i32overflow"), std::runtime_error);
+  BOOST_CHECK_THROW(querier.get<int32_t>("i32overflow"), Exception);
   BOOST_TEST(querier.get<uint32_t>("i32overflow"));
   BOOST_TEST(querier.get<uint32_t>("u32max"));
 

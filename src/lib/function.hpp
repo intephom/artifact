@@ -2,53 +2,65 @@
 
 #include "env.hpp"
 #include "expr.hpp"
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 #include <functional>
-#include <sstream>
 
-#define AFCT_ARG_ERROR(__args, __message) \
-  do \
-  { \
-    std::ostringstream __stream; \
-    __stream << __message << " but got " << afct::Expr{__args}; \
-    throw std::runtime_error(__stream.str()); \
-  } while (false);
+#define AFCT_ARG_CHECK(__predicate, __message) \
+  AFCT_CHECK( \
+      __predicate, fmt::format("{} but got {}", __message, afct::Expr{args}));
 
 namespace afct {
 
-class IFunction
+struct Lambda
 {
-public:
-  virtual ~IFunction() = default;
-  virtual std::string name() const = 0;
-  virtual Expr call(List const& args) = 0;
+  List params;
+  Expr body;
+  std::shared_ptr<Env> env;
 };
 
-class Function : public IFunction
+bool operator==(Lambda const& lhs, Lambda const& rhs);
+bool operator!=(Lambda const& lhs, Lambda const& rhs);
+std::ostream& operator<<(std::ostream& stream, Lambda const& lambda);
+
+class INativeFunction
 {
 public:
-  Function(std::string name, List params, Expr body, Env* env);
-  std::string name() const final;
-  Expr call(List const& args) final;
+  virtual ~INativeFunction() = default;
+  virtual Expr call(List& args, std::shared_ptr<Env> env) = 0;
+};
+
+class StdFunction : public INativeFunction
+{
+public:
+  StdFunction(std::function<Expr(List&, std::shared_ptr<Env>)> function);
+  Expr call(List& args, std::shared_ptr<Env> env) final;
 
 private:
-  std::string _name;
-  List _params;
-  Expr _body;
-  Env* _env;
+  std::function<Expr(List&, std::shared_ptr<Env>)> _function;
 };
 
-class NativeFunction : public IFunction
+Expr StdFunctionToExpr(
+    std::string name,
+    std::function<Expr(List&, std::shared_ptr<Env>)> function);
+
+struct Builtin
 {
-public:
-  NativeFunction(std::string name, std::function<Expr(List const&)> f);
-  std::string name() const final;
-  Expr call(List const& args) final;
-
-private:
-  std::string _name;
-  std::function<Expr(List const&)> _f;
+  std::string name;
+  std::shared_ptr<INativeFunction> function;
 };
 
-Expr NativeFunctionToExpr(std::string name, std::function<Expr(List const&)> f);
+bool operator==(Builtin const& lhs, Builtin const& rhs);
+bool operator!=(Builtin const& lhs, Builtin const& rhs);
+std::ostream& operator<<(std::ostream& stream, Builtin const& builtin);
+
+template<class T, class... Args>
+Expr NativeFunctionToExpr(std::string name, Args... args)
+{
+  return Expr{Builtin{
+      std::move(name), std::make_shared<T>(std::forward<Args>(args)...)}};
+}
+
+Expr Call(Expr const& expr, List& args, std::shared_ptr<Env> env);
 
 } // namespace afct

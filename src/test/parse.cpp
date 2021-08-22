@@ -1,4 +1,6 @@
-#include "parse.hpp"
+#include "lib/parse.hpp"
+
+#include "lib/util.hpp"
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
@@ -32,7 +34,7 @@ BOOST_AUTO_TEST_CASE(parse_bad_quote)
 {
   auto code = "'";
 
-  BOOST_CHECK_THROW(Parse(code), std::runtime_error);
+  BOOST_CHECK_THROW(Parse(code), Exception);
 }
 
 BOOST_AUTO_TEST_CASE(parse_table)
@@ -59,7 +61,7 @@ BOOST_AUTO_TEST_CASE(parse_bad_table)
 {
   auto code = "#";
 
-  BOOST_CHECK_THROW(Parse(code), std::runtime_error);
+  BOOST_CHECK_THROW(Parse(code), Exception);
 }
 
 BOOST_AUTO_TEST_CASE(parse_empty_table)
@@ -74,14 +76,14 @@ BOOST_AUTO_TEST_CASE(parse_incomplete_table)
 {
   auto code = "#(1 2";
 
-  BOOST_CHECK_THROW(Parse(code), std::runtime_error);
+  BOOST_CHECK_THROW(Parse(code), Exception);
 }
 
 BOOST_AUTO_TEST_CASE(parse_list_key_table)
 {
   auto code = "#((+ 1 1) 2)";
 
-  BOOST_CHECK_THROW(Parse(code), std::runtime_error);
+  BOOST_CHECK_THROW(Parse(code), Exception);
 }
 
 BOOST_AUTO_TEST_CASE(parse_list)
@@ -105,14 +107,14 @@ BOOST_AUTO_TEST_CASE(parse_unended_list)
 {
   auto code = "(+ 1 2";
 
-  BOOST_CHECK_THROW(Parse(code), std::runtime_error);
+  BOOST_CHECK_THROW(Parse(code), Exception);
 }
 
 BOOST_AUTO_TEST_CASE(parse_unstarted_list)
 {
   auto code = "+ 1 2)";
 
-  BOOST_CHECK_THROW(Parse(code), std::runtime_error);
+  BOOST_CHECK_THROW(Parse(code), Exception);
 }
 
 BOOST_AUTO_TEST_CASE(parse_comment)

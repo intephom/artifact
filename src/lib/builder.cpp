@@ -1,7 +1,8 @@
 #include "builder.hpp"
 
 #include "util.hpp"
-#include <sstream>
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 namespace afct {
 
@@ -112,9 +113,7 @@ bool Builder::end_table()
 
 std::string Builder::get_string() const
 {
-  std::ostringstream stream;
-  stream << _root;
-  return stream.str();
+  return fmt::format("{}", _root);
 }
 
 Expr Builder::get_expr() const
@@ -134,14 +133,14 @@ bool Builder::push(Expr expr)
   auto& current = _stack.back();
   if (current.is_list())
   {
-    current.get_list()->push_back(expr);
+    current.get_list().push_back(expr);
   }
   else if (current.is_table())
   {
-    if (_key.get_type() == Type::Unknown)
+    if (_key.get_type() == Type::Null)
       return false;
 
-    current.get_table()->operator[](_key) = expr;
+    current.get_table()[_key] = expr;
     _key = Expr();
   }
   else

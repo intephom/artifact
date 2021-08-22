@@ -1,6 +1,8 @@
 #include "querier.hpp"
 
 #include "parse.hpp"
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 namespace afct {
 
@@ -24,20 +26,18 @@ bool Querier::get_list(std::string const& path, std::vector<Expr>& result) const
       auto const& unquoted = Unquote(expr);
       if (unquoted.is_list())
       {
-        result = *unquoted.get_list();
+        result = unquoted.get_list();
         return true;
       }
     }
 
-    result = *expr.get_list();
+    result = expr.get_list();
     return true;
   }
   else if (expr.is_table())
   {
-    for (auto const& pair : *expr.get_table())
-    {
+    for (auto const& pair : expr.get_table())
       result.push_back(Expr{List{pair.first, pair.second}});
-    }
     return true;
   }
 
@@ -47,8 +47,8 @@ bool Querier::get_list(std::string const& path, std::vector<Expr>& result) const
 std::vector<Expr> Querier::get_list(std::string const& path) const
 {
   std::vector<Expr> result;
-  if (!get_list(path, result))
-    AFCT_ERROR("List for " << path << " not found");
+  AFCT_CHECK(
+      get_list(path, result), fmt::format("List for {} not found", path));
   return result;
 }
 
@@ -165,7 +165,7 @@ bool Querier::find(std::vector<std::string> const& elements, Expr& result) const
     if (key.is_name())
       key = Expr{String{key.get_name()}};
 
-    auto const& table = *expr.get_table();
+    auto const& table = expr.get_table();
     auto it = table.find(key);
     if (it == table.end())
       return false;

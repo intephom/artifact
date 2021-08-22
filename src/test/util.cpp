@@ -1,7 +1,7 @@
 #include "util.hpp"
 
-#include "eval.hpp"
-#include "prelude.hpp"
+#include "lib/eval.hpp"
+#include "lib/prelude.hpp"
 
 namespace afct {
 

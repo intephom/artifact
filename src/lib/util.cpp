@@ -1,8 +1,13 @@
 #include "util.hpp"
 
-#include <sstream>
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 namespace afct {
+
+Exception::Exception(std::string what) noexcept
+  : std::runtime_error(std::move(what))
+{}
 
 std::vector<std::string> Split(
     std::string const& delimiter, std::string const& str)

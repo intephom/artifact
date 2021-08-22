@@ -15,7 +15,8 @@ public:
   virtual void int_value(int64_t value) = 0;
   virtual void string_value(std::string const& value) = 0;
   virtual void name_value(std::string const& value) = 0;
-  virtual void function_value(std::shared_ptr<IFunction> const& value) = 0;
+  virtual void lambda_value(Lambda const& value) = 0;
+  virtual void builtin_value(Builtin const& value) = 0;
   virtual void start_list(size_t size) = 0;
   virtual void end_list() = 0;
   virtual void start_table(size_t size) = 0;

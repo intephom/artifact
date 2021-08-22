@@ -1,5 +1,4 @@
-add_definitions(--std=c++17 -Wall -Werror -pedantic -pthread)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
+add_definitions(--std=c++2a -Wall -Werror -pedantic -pthread)
 add_subdirectory(afct)
 add_subdirectory(lib)
 add_subdirectory(test)

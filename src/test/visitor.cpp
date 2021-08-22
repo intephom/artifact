@@ -1,8 +1,8 @@
-#include "visitor.hpp"
+#include "lib/visitor.hpp"
 
-#include "eval.hpp"
-#include "function.hpp"
-#include "prelude.hpp"
+#include "lib/eval.hpp"
+#include "lib/function.hpp"
+#include "lib/prelude.hpp"
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 #include <sstream>
@@ -44,9 +44,14 @@ public:
     stream << "name " << value;
   }
 
-  void function_value(std::shared_ptr<IFunction> const& value) override
+  void lambda_value(Lambda const& value) override
   {
-    stream << "function " << value->name();
+    stream << "lambda";
+  }
+
+  void builtin_value(Builtin const& value) override
+  {
+    stream << "builtin " << value;
   }
 
   void start_list(size_t size) override
@@ -83,7 +88,7 @@ public:
 BOOST_AUTO_TEST_CASE(visitor)
 {
   auto code =
-      R"((list null true false 2.7 27 "hello" 'lambda (lambda (a) (* a 2)) '(1 2) '#(1 2)))";
+      R"((list null true false 2.7 27 "hello" 'lambda (lambda (a) (* a 2)) max '(1 2) '#(1 2)))";
   auto env = Prelude();
   auto expr = Eval(std::string(code), env);
 
@@ -91,7 +96,7 @@ BOOST_AUTO_TEST_CASE(visitor)
   Visit(expr, &visitor);
   auto string = visitor.stream.str();
 
-  auto expected = "start list size 10"
+  auto expected = "start list size 11"
                   "null"
                   "bool 1"
                   "bool 0"
@@ -99,7 +104,8 @@ BOOST_AUTO_TEST_CASE(visitor)
                   "int 27"
                   "string hello"
                   "name lambda"
-                  "function lambda"
+                  "lambda"
+                  "builtin max"
                   "start list size 2"
                   "int 1"
                   "int 2"
